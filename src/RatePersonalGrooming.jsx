@@ -1,0 +1,263 @@
+import React, { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { doc, getDoc, setDoc, collection, updateDoc, query, getDocs } from 'firebase/firestore';
+import { db } from './firebase';
+import { 
+  storeRating, 
+  getAllRatings, 
+  clearRatings, 
+  getWeekNumber, 
+  getMonthYear,
+  calculateAveragePercentage,
+  getStaffRatingWeek,
+  updateStaffRatingWeek
+} from './utils/ratingUtils';
+import {
+  isFourthRating,
+  fetchWeeklyRatings,
+  calculateCategoryAverages,
+  storeAggregatedRatings
+} from './utils/aggregatedRatingsUtils';
+import StaffDetailsWithScore from './components/StaffDetailsWithScore';
+
+// Import score icons
+const fiveGroomingScoreUrl = new URL('./assets/5-grooming score.svg', import.meta.url).href;
+const fourGroomingScoreUrl = new URL('./assets/4-grooming score.svg', import.meta.url).href;
+const threeGroomingScoreUrl = new URL('./assets/3-grooming score.svg', import.meta.url).href;
+const twoGroomingScoreUrl = new URL('./assets/2-grooming score.svg', import.meta.url).href;
+const oneGroomingScoreUrl = new URL('./assets/1-grooming score.svg', import.meta.url).href;
+const forwardRoundArrowUrl = new URL('./assets/forward-round-arrow.svg', import.meta.url).href;
+const backwardRoundArrowUrl = new URL('./assets/backward-round-arrow.svg', import.meta.url).href;
+
+const RatePersonalGrooming = () => {
+  const { staffId } = useParams();
+  const navigate = useNavigate();
+  const [staff, setStaff] = useState(null);
+  const [weeklyRatings, setWeeklyRatings] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [selectedScore, setSelectedScore] = useState(null);
+  const [saving, setSaving] = useState(false);
+
+  // Score configurations with points and percentages (hidden from UI)
+  const scoreConfig = {
+    5: { points: 5, percentage: 100 },
+    4: { points: 4, percentage: 80 },
+    3: { points: 3, percentage: 60 },
+    2: { points: 2, percentage: 40 },
+    1: { points: 1, percentage: 20 }
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        
+        // Fetch staff details
+        const staffDoc = await getDoc(doc(db, 'staff', staffId));
+        if (!staffDoc.exists()) {
+          throw new Error('Staff not found');
+        }
+        setStaff(staffDoc.data());
+
+        // Fetch weekly ratings
+        const monthlyQuery = query(
+          collection(db, 'staff', staffId, 'monthlyRatings')
+        );
+        const monthlySnapshot = await getDocs(monthlyQuery);
+        const weeklyData = monthlySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        })).sort((a, b) => a.week - b.week);
+
+        setWeeklyRatings(weeklyData);
+
+      } catch (err) {
+        console.error('Error fetching data:', err);
+        setError(err.message || 'Failed to fetch data.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (staffId) {
+      fetchData();
+    }
+  }, [staffId]);
+
+  const handleScoreClick = (score) => {
+    setSelectedScore(score);
+
+    // Ensure the score is valid and has a corresponding config
+    if (!scoreConfig[score]) {
+      console.error('Invalid score selected:', score);
+      alert('Invalid score selected.');
+      return;
+    }
+
+    // Store rating in sessionStorage
+    storeRating('personal_grooming', scoreConfig[score].points, scoreConfig[score].percentage);
+  };
+
+  const handleBackwardClick = () => {
+    navigate(`/rate-discipline-cases/${staffId}`);
+  };
+
+  const handleSave = async () => {
+    try {
+      setSaving(true);
+      const ratings = getAllRatings();
+      if (!ratings || Object.keys(ratings).length === 0) {
+        alert('No ratings to save. Please complete all rating sections.');
+        setSaving(false);
+        return;
+      }
+
+      const staffRef = doc(db, 'staff', staffId);
+      const staffDoc = await getDoc(staffRef);
+      const currentRatingCount = staffDoc.exists() ? (staffDoc.data().ratingCount || 0) : 0;
+      const nextRatingCount = currentRatingCount + 1;
+      const weekNumberForSaving = nextRatingCount; // Now using sequential numbers (1, 2, 3, etc.)
+
+      // Calculate average percentage for the current rating submission
+      const percentages = Object.values(ratings).map(rating => rating.percentage);
+      const averagePercentage = Math.round(percentages.reduce((a, b) => a + b, 0) / percentages.length);
+
+      // Save to Firestore in the monthlyRatings subcollection with the determined week number
+      await setDoc(doc(db, 'staff', staffId, 'monthlyRatings', `week_${weekNumberForSaving}`), {
+        ...ratings,
+        week: weekNumberForSaving, // Save the sequential week number
+        averagePercentage,
+        timestamp: new Date().toISOString()
+      });
+
+      // Update the rating count in the staff document
+      await updateDoc(staffRef, {
+        ratingCount: nextRatingCount
+      });
+
+      // Clear sessionStorage
+      clearRatings();
+
+      setSaving(false);
+      // Navigate to ViewStaffReport page
+      navigate(`/view-staff-report/${staffId}`);
+    } catch (error) {
+      console.error('Error saving ratings:', error);
+      alert('Failed to save ratings. Please try again.');
+      setSaving(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen w-full bg-[#0D1B2A] p-6">
+        <div className="text-white text-center mt-10">Loading...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen w-full bg-[#0D1B2A] p-6">
+        <div className="text-red-500 text-center mt-10">{error}</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen w-full bg-[#0D1B2A] p-6">
+      <div className="flex flex-col items-center pt-8">
+        <h1 className="text-white text-3xl font-bold mb-8">Rate Personal Grooming</h1>
+        
+        {staff && (
+          <StaffDetailsWithScore staff={staff} weeklyRatings={weeklyRatings} />
+        )}
+
+        {/* Add PERSONAL GROOMING text below the rectangle */}
+        <div className="flex justify-center w-full mb-4">
+          <span className="text-white text-lg sm:text-xl font-bold">💆🏻 PERSONAL GROOMING</span>
+        </div>
+
+        {/* White line below the text */}
+        <div className="w-full h-px bg-white mb-8"></div>
+
+        {/* Score selection section */}
+        <div className="w-full max-w-lg sm:max-w-3xl mx-auto space-y-4">
+          <div 
+            className={`w-full cursor-pointer transition-all duration-200 ${
+              selectedScore === 5 
+                ? 'scale-105 ring-4 ring-blue-500 rounded-lg bg-blue-500 bg-opacity-20' 
+                : 'hover:scale-105'
+            }`}
+            onClick={() => handleScoreClick(5)}
+          >
+            <img src={fiveGroomingScoreUrl} alt="5 Grooming Score" className="w-full h-auto" />
+          </div>
+          <div 
+            className={`w-full cursor-pointer transition-all duration-200 ${
+              selectedScore === 4 
+                ? 'scale-105 ring-4 ring-blue-500 rounded-lg bg-blue-500 bg-opacity-20' 
+                : 'hover:scale-105'
+            }`}
+            onClick={() => handleScoreClick(4)}
+          >
+            <img src={fourGroomingScoreUrl} alt="4 Grooming Score" className="w-full h-auto" />
+          </div>
+          <div 
+            className={`w-full cursor-pointer transition-all duration-200 ${
+              selectedScore === 3 
+                ? 'scale-105 ring-4 ring-blue-500 rounded-lg bg-blue-500 bg-opacity-20' 
+                : 'hover:scale-105'
+            }`}
+            onClick={() => handleScoreClick(3)}
+          >
+            <img src={threeGroomingScoreUrl} alt="3 Grooming Score" className="w-full h-auto" />
+          </div>
+          <div 
+            className={`w-full cursor-pointer transition-all duration-200 ${
+              selectedScore === 2 
+                ? 'scale-105 ring-4 ring-blue-500 rounded-lg bg-blue-500 bg-opacity-20' 
+                : 'hover:scale-105'
+            }`}
+            onClick={() => handleScoreClick(2)}
+          >
+            <img src={twoGroomingScoreUrl} alt="2 Grooming Score" className="w-full h-auto" />
+          </div>
+          <div 
+            className={`w-full cursor-pointer transition-all duration-200 ${
+              selectedScore === 1 
+                ? 'scale-105 ring-4 ring-blue-500 rounded-lg bg-blue-500 bg-opacity-20' 
+                : 'hover:scale-105'
+            }`}
+            onClick={() => handleScoreClick(1)}
+          >
+            <img src={oneGroomingScoreUrl} alt="1 Grooming Score" className="w-full h-auto" />
+          </div>
+        </div>
+
+        {/* Navigation buttons */}
+        <div className="max-w-4xl mx-auto mt-8 flex justify-between items-center">
+          <img 
+            src={backwardRoundArrowUrl} 
+            alt="Previous" 
+            className="w-12 h-12 sm:w-16 sm:h-16 cursor-pointer hover:scale-110 transition-transform duration-300"
+            onClick={handleBackwardClick}
+          />
+          {/* Save button */}
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            className={`px-8 py-3 rounded-lg text-white font-bold text-lg transition-colors duration-200 ${saving ? 'bg-gray-500 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'}`}
+          >
+            {saving ? 'Saving...' : 'Save Ratings'}
+          </button>
+          {/* Placeholder for forward button - hidden on this last page */}
+          <div className="w-12 sm:w-16"></div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default RatePersonalGrooming; 

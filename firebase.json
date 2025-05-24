@@ -1,0 +1,20 @@
+{
+  "firestore": {
+    "indexes": [
+      {
+        "collectionGroup": "staff_ratings",
+        "queryScope": "COLLECTION",
+        "fields": [
+          {
+            "fieldPath": "staffId",
+            "order": "ASCENDING"
+          },
+          {
+            "fieldPath": "timestamp",
+            "order": "DESCENDING"
+          }
+        ]
+      }
+    ]
+  }
+} 
