@@ -23,36 +23,44 @@ const auth = getAuth(app);
 const storage = getStorage(app);
 const analytics = getAnalytics(app);
 
-// Log initialization status
-console.log('Firebase services initialized:', {
-  auth: !!auth,
-  db: !!db,
-  analytics: !!analytics
-});
+// Security logging
+const logSecurityEvent = (event, details) => {
+  console.log(`[Security Event] ${event}:`, {
+    timestamp: new Date().toISOString(),
+    ...details
+  });
+};
 
-// Test Firebase connection
+// Enhanced Firebase connection test with security checks
 const testFirebaseConnection = async () => {
   try {
     // Test Firestore connection
     const testDoc = doc(db, 'test', 'connection');
-    await setDoc(testDoc, { timestamp: new Date().toISOString() });
-    console.log('Firebase Firestore connection successful');
+    await setDoc(testDoc, { 
+      timestamp: new Date().toISOString(),
+      testType: 'security_check'
+    });
+    logSecurityEvent('Firestore Connection Test', { status: 'success' });
     
     // Verify the test document was saved
     const savedDoc = await getDoc(testDoc);
     if (savedDoc.exists()) {
-      console.log('Test document saved and verified:', savedDoc.data());
+      logSecurityEvent('Document Verification', { status: 'success' });
     } else {
       throw new Error('Test document was not saved properly');
     }
     
     // Test Auth connection
     const currentUser = auth.currentUser;
-    console.log('Firebase Auth connection successful');
+    logSecurityEvent('Auth Connection Test', { status: 'success' });
     
     return true;
   } catch (error) {
-    console.error('Firebase connection test failed:', error);
+    logSecurityEvent('Connection Test Failed', { 
+      error: error.message,
+      code: error.code
+    });
+    
     if (error.code === 'permission-denied') {
       console.error('Permission denied. Please check your database rules.');
     } else if (error.code === 'not-found') {
@@ -67,10 +75,10 @@ const testFirebaseConnection = async () => {
 // Run connection test
 testFirebaseConnection().then(success => {
   if (success) {
-    console.log('Firebase connection test passed');
+    logSecurityEvent('Firebase Initialization', { status: 'success' });
   } else {
-    console.error('Firebase connection test failed');
+    logSecurityEvent('Firebase Initialization', { status: 'failed' });
   }
 });
 
-export { db, auth, storage, analytics }; 
+export { db, auth, storage, analytics, logSecurityEvent }; 
