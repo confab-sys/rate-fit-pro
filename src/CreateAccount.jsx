@@ -7,6 +7,7 @@ const CreateAccount = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const userType = location.state?.from === 'admin-login' ? 'hr' : 'supervisor';
+  console.log('User Type:', userType); // Debug log to verify userType
   
   const rectangleUrl = new URL('./assets/Rectangle-green.svg', import.meta.url).href;
   const passwordManIcon = new URL('./assets/icon password man.svg', import.meta.url).href;
