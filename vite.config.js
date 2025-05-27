@@ -21,10 +21,10 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
       manifest: {
-        name: 'RateFit Pro',
-        short_name: 'RateFit Pro',
-        description: 'RateFit Pro - Staff Rating System',
-        theme_color: '#0D1B2A',
+        name: 'Rate Fit Pro',
+        short_name: 'RateFit',
+        description: 'Staff Rating and Management System',
+        theme_color: '#ffffff',
         icons: [
           {
             src: 'pwa-192x192.png',
@@ -34,8 +34,7 @@ export default defineConfig({
           {
             src: 'pwa-512x512.png',
             sizes: '512x512',
-            type: 'image/png',
-            purpose: 'any maskable'
+            type: 'image/png'
           }
         ]
       },
@@ -43,16 +42,13 @@ export default defineConfig({
         globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
         runtimeCaching: [
           {
-            urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
-            handler: 'CacheFirst',
+            urlPattern: /^https:\/\/firestore\.googleapis\.com\/.*/,
+            handler: 'NetworkFirst',
             options: {
-              cacheName: 'google-fonts-cache',
+              cacheName: 'firestore-cache',
               expiration: {
-                maxEntries: 10,
-                maxAgeSeconds: 60 * 60 * 24 * 365
-              },
-              cacheableResponse: {
-                statuses: [0, 200]
+                maxEntries: 50,
+                maxAgeSeconds: 60 * 60 * 24 // 24 hours
               }
             }
           }
@@ -71,9 +67,8 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          vendor: ['react', 'react-dom'],
-          charts: ['chart.js', 'react-chartjs-2'],
-          pdf: ['jspdf', 'html2canvas']
+          vendor: ['react', 'react-dom', 'react-router-dom'],
+          firebase: ['firebase/app', 'firebase/auth', 'firebase/firestore']
         }
       }
     }
