@@ -17,10 +17,12 @@ const SupervisorLogin = () => {
   const [email, setEmail] = useState('');
   const [pin, setPin] = useState('');
   const [error, setError] = useState('');
+  const [isPinError, setIsPinError] = useState(false);
 
   const handlePinChange = (e) => {
     const value = e.target.value.replace(/[^0-9]/g, '');
     setPin(value.slice(0, 6));
+    setIsPinError(false); // Reset PIN error when user types
     console.log('PIN input changed:', value.slice(0, 6));
   };
 
@@ -80,6 +82,7 @@ const SupervisorLogin = () => {
     
     if (pin.length !== 6) {
       setError('PIN must be 6 digits');
+      setIsPinError(true);
       return;
     }
 
@@ -91,6 +94,7 @@ const SupervisorLogin = () => {
         navigate('/welcome-supervisor');
       } else {
         setError('Invalid credentials');
+        setIsPinError(true);
       }
     } catch (err) {
       console.error('Login error:', err);
@@ -98,6 +102,7 @@ const SupervisorLogin = () => {
         setError('User not found');
       } else if (err.code === 'auth/wrong-password') {
         setError('Invalid PIN');
+        setIsPinError(true);
       } else {
         setError('Login failed. Please try again.');
       }
@@ -106,6 +111,27 @@ const SupervisorLogin = () => {
 
   return (
     <div className="min-h-screen w-full bg-[#0D1B2A] flex flex-col items-center overflow-x-hidden">
+      {/* Back Arrow Button */}
+      <button
+        onClick={() => navigate('/blank')}
+        className="absolute top-4 left-4 text-white hover:text-gray-300 transition-colors"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-8 w-8"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M10 19l-7-7m0 0l7-7m-7 7h18"
+          />
+        </svg>
+      </button>
+
       <h1 className="text-white text-3xl sm:text-4xl font-bold mt-10 sm:mt-20 mb-0 animate-fade-in px-4 text-center">
         Supervisor Login
       </h1>
@@ -146,7 +172,9 @@ const SupervisorLogin = () => {
                 placeholder="Enter 6-digit PIN"
                 value={pin}
                 onChange={handlePinChange}
-                className="w-full px-4 py-2 sm:py-3 pl-12 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:border-white/40 transition-colors text-center tracking-widest text-xl"
+                className={`w-full px-4 py-2 sm:py-3 pl-12 rounded-lg bg-white/10 border ${
+                  isPinError ? 'border-red-500' : 'border-white/20'
+                } text-white placeholder-white/50 focus:outline-none focus:border-white/40 transition-colors text-center tracking-widest text-xl`}
               />
             </div>
           </div>
@@ -181,7 +209,7 @@ const SupervisorLogin = () => {
           
           <button 
             className="text-emerald-400/90 text-sm hover:text-emerald-400 transition-colors underline underline-offset-2"
-            onClick={() => navigate('/create-account')}
+            onClick={() => navigate('/create-account', { state: { from: 'supervisor-login' } })}
           >
             Sign Up
           </button>

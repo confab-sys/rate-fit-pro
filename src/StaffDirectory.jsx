@@ -9,16 +9,35 @@ function useQuery() {
 
 const StaffDirectory = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const queryParams = useQuery();
   const deleteMode = queryParams.get('deleteMode') === 'true';
   const rateMode = queryParams.get('rateMode') === 'true';
   const analysisMode = queryParams.get('analysisMode') === 'true';
+  const fromHrMenu = queryParams.get('fromHrMenu') === 'true';
+  const fromSupervisorMenu = queryParams.get('fromSupervisorMenu') === 'true' || location.state?.fromSupervisorMenu;
   const [staffMembers, setStaffMembers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [search, setSearch] = useState('');
   const [ratedStaffIds, setRatedStaffIds] = useState([]);
   const [selectedStaff, setSelectedStaff] = useState(null);
+  const [lastRatedDates, setLastRatedDates] = useState({});
+
+  console.log('Navigation state:', location.state); // Debug log
+  console.log('From supervisor menu:', fromSupervisorMenu); // Debug log
+  console.log('Rate mode:', rateMode); // Debug log
+
+  // Function to check if a staff member was rated within the last week
+  const isRatedWithinLastWeek = (staffId) => {
+    const lastRatedDate = lastRatedDates[staffId];
+    if (!lastRatedDate) return false;
+
+    const oneWeekAgo = new Date();
+    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+    
+    return new Date(lastRatedDate) > oneWeekAgo;
+  };
 
   useEffect(() => {
     const fetchStaffData = async () => {
@@ -30,6 +49,22 @@ const StaffDirectory = () => {
         }));
         console.log('Fetched staff data:', staffData); // Debug log
         setStaffMembers(staffData);
+
+        // Fetch last rated dates for each staff member
+        const ratedDates = {};
+        for (const staff of staffData) {
+          const ratingsQuery = query(
+            collection(db, 'staff', staff.id, 'monthlyRatings'),
+            orderBy('timestamp', 'desc'),
+            limit(1)
+          );
+          const ratingsSnapshot = await getDocs(ratingsQuery);
+          if (!ratingsSnapshot.empty) {
+            const lastRating = ratingsSnapshot.docs[0].data();
+            ratedDates[staff.id] = lastRating.timestamp;
+          }
+        }
+        setLastRatedDates(ratedDates);
         setLoading(false);
       } catch (err) {
         console.error('Error fetching staff data:', err);
@@ -100,17 +135,6 @@ const StaffDirectory = () => {
     }
   }, [navigate]);
 
-  const handleBack = () => {
-    const supervisorName = sessionStorage.getItem('supervisorName');
-    const adminName = sessionStorage.getItem('adminName');
-    
-    if (supervisorName) {
-      navigate('/supervisor-menu');
-    } else if (adminName) {
-      navigate('/admin-menu');
-    }
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen w-full bg-[#0D1B2A] p-6">
@@ -130,28 +154,62 @@ const StaffDirectory = () => {
   return (
     <div className="min-h-screen w-full bg-[#0D1B2A] overflow-x-hidden">
       <div className="p-2 sm:p-4">
-        {/* Header with back button */}
-        <div className="flex items-center mb-4 sm:mb-8">
-          <button 
-            onClick={handleBack}
-            className="text-white hover:text-gray-300 transition-colors"
-          >
-            <svg 
-              xmlns="http://www.w3.org/2000/svg" 
-              className="h-6 w-6 sm:h-8 sm:w-8" 
-              fill="none" 
-              viewBox="0 0 24 24" 
-              stroke="currentColor"
-            >
-              <path 
-                strokeLinecap="round" 
-                strokeLinejoin="round" 
-                strokeWidth={2} 
-                d="M10 19l-7-7m0 0l7-7m-7 7h18" 
-              />
-            </svg>
-          </button>
-          <h1 className="text-white text-xl sm:text-2xl font-bold text-center flex-1">Staff Directory</h1>
+        {/* Header */}
+        <div className="flex items-center justify-between mb-4 sm:mb-8">
+          <h1 className="text-white text-xl sm:text-2xl font-bold text-center flex-1">
+            {rateMode ? 'Rate Staff' : 'Staff Directory'}
+          </h1>
+          
+          {/* Navigation Buttons */}
+          <div className="flex flex-col space-y-2">
+            {/* Return to HR Menu Button - Show when coming from HR menu or not in rate mode */}
+            {(!fromSupervisorMenu && (fromHrMenu || !rateMode)) && (
+              <button
+                onClick={() => navigate('/human-resource-menu')}
+                className="px-4 py-3 rounded-lg bg-[#1B263B] text-white hover:bg-[#22304a] transition-colors flex items-center justify-center space-x-2"
+              >
+                <svg 
+                  xmlns="http://www.w3.org/2000/svg" 
+                  className="h-5 w-5" 
+                  fill="none" 
+                  viewBox="0 0 24 24" 
+                  stroke="currentColor"
+                >
+                  <path 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round" 
+                    strokeWidth={2} 
+                    d="M10 19l-7-7m0 0l7-7m-7 7h18" 
+                  />
+                </svg>
+                <span>Return to HR Menu</span>
+              </button>
+            )}
+
+            {/* Main Menu Button - Only show if coming from supervisor menu */}
+            {fromSupervisorMenu && (
+              <button
+                onClick={() => navigate('/supervisor-menu')}
+                className="px-4 py-3 rounded-lg bg-[#1B263B] text-white hover:bg-[#22304a] transition-colors flex items-center justify-center space-x-2"
+              >
+                <svg 
+                  xmlns="http://www.w3.org/2000/svg" 
+                  className="h-5 w-5" 
+                  fill="none" 
+                  viewBox="0 0 24 24" 
+                  stroke="currentColor"
+                >
+                  <path 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round" 
+                    strokeWidth={2} 
+                    d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" 
+                  />
+                </svg>
+                <span>Main Menu</span>
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Search Bar */}
@@ -182,35 +240,33 @@ const StaffDirectory = () => {
         </div>
 
         {/* Staff Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-6xl mx-auto">
+        <div className="grid grid-cols-3 gap-2 sm:gap-3 max-w-7xl mx-auto px-2 sm:px-4">
           {filteredStaff.map((staff) => {
             const isRated = ratedStaffIds.includes(staff.id);
+            const isRecentlyRated = isRatedWithinLastWeek(staff.id);
             
             return (
               <div
                 key={staff.id}
                 onClick={() => handleStaffClick(staff)}
-                className={`bg-[#1B263B] rounded-lg p-4 hover:shadow-lg transition-shadow cursor-pointer ${
-                  isRated && rateMode ? 'border-2 border-green-500' : ''
+                className={`bg-[#1B263B] rounded-lg p-2 sm:p-3 hover:shadow-lg transition-shadow cursor-pointer ${
+                  isRecentlyRated ? 'border-2 border-green-500' : ''
                 }`}
               >
-                <div className="flex items-start space-x-4">
+                <div className="flex flex-col items-center space-y-2">
                   <div className="flex-shrink-0">
                     <img
                       src={staff.photo || 'https://via.placeholder.com/64'}
                       alt={staff.name}
-                      className="w-16 h-16 rounded-full object-cover"
+                      className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover"
                     />
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <h2 className="text-white text-lg font-semibold truncate">
+                  <div className="flex-1 min-w-0 w-full text-center">
+                    <h2 className="text-white text-xs sm:text-sm font-semibold truncate">
                       {staff.name}
-                      {isRated && rateMode && (
-                        <span className="ml-2 text-green-500">✓</span>
-                      )}
                     </h2>
-                    <p className="text-gray-400 text-sm">ID: {staff.staffIdNo}</p>
-                    <p className="text-gray-400 text-sm">Department: {staff.department}</p>
+                    <p className="text-gray-400 text-[10px] sm:text-xs truncate">ID: {staff.staffIdNo}</p>
+                    <p className="text-gray-400 text-[10px] sm:text-xs truncate">Department: {staff.department}</p>
                   </div>
                 </div>
               </div>

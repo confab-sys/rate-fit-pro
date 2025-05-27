@@ -23,7 +23,7 @@ const SupervisorMenu = () => {
 
   const handleLogout = () => {
     sessionStorage.removeItem('supervisorName');
-    navigate('/supervisor-login');
+    navigate('/blank');
   };
 
   return (
@@ -36,28 +36,28 @@ const SupervisorMenu = () => {
             src={staffDirectoryUrl}
             alt="Staff Directory"
             className="w-24 h-24 sm:w-32 sm:h-32 cursor-pointer hover:scale-110 transition-transform duration-300"
-            onClick={() => navigate('/staff-directory')}
+            onClick={() => navigate('/staff-directory?fromSupervisorMenu=true')}
           />
           
           <img 
             src={performanceDashboardUrl}
             alt="Performance Dashboard"
             className="w-24 h-24 sm:w-32 sm:h-32 cursor-pointer hover:scale-110 transition-transform duration-300"
-            onClick={() => navigate('/performance-dashboard')}
+            onClick={() => navigate('/performance-dashboard', { state: { fromSupervisorMenu: true } })}
           />
           
           <img 
             src={insightTrendsUrl}
             alt="Insight Trends"
             className="w-24 h-24 sm:w-32 sm:h-32 cursor-pointer hover:scale-110 transition-transform duration-300"
-            onClick={() => navigate('/insight-trends')}
+            onClick={() => navigate('/insight-trends', { state: { fromSupervisorMenu: true } })}
           />
 
           <img 
             src={addRemoveStaffUrl}
             alt="Add/Remove Staff"
             className="w-24 h-24 sm:w-32 sm:h-32 cursor-pointer hover:scale-110 transition-transform duration-300"
-            onClick={() => navigate('/staff-management')}
+            onClick={() => navigate('/staff-management', { state: { fromSupervisorMenu: true } })}
           />
 
           <img 
@@ -71,14 +71,14 @@ const SupervisorMenu = () => {
             src={rateStaffSquareUrl}
             alt="Rate Staff"
             className="w-24 h-24 sm:w-32 sm:h-32 cursor-pointer hover:scale-110 transition-transform duration-300"
-            onClick={() => navigate('/staff-directory?rateMode=true')}
+            onClick={() => navigate('/staff-directory?rateMode=true&fromSupervisorMenu=true')}
           />
 
           <img 
             src={reportsUrl}
             alt="Reports"
             className="w-24 h-24 sm:w-32 sm:h-32 cursor-pointer hover:scale-110 transition-transform duration-300"
-            onClick={() => navigate('/reports')}
+            onClick={() => navigate('/reports', { state: { fromSupervisorMenu: true } })}
           />
 
           <img 

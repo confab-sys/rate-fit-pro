@@ -13,7 +13,7 @@ const HumanResourceMenu = () => {
 
   const handleLogout = () => {
     sessionStorage.removeItem('adminName');
-    navigate('/admin-login');
+    navigate('/blank');
   };
 
   // Import SVG assets
@@ -36,7 +36,7 @@ const HumanResourceMenu = () => {
           {/* Staff Directory */}
           <div 
             className="flex justify-center items-center cursor-pointer hover:scale-105 transition-transform duration-300"
-            onClick={() => navigate('/staff-directory')}
+            onClick={() => navigate('/staff-directory?fromHrMenu=true')}
           >
             <img 
               src={staffDirectoryUrl}
@@ -72,7 +72,7 @@ const HumanResourceMenu = () => {
           {/* Trend Analysis */}
           <div 
             className="flex justify-center items-center cursor-pointer hover:scale-105 transition-transform duration-300"
-            onClick={() => navigate('/trend-analysis')}
+            onClick={() => navigate('/insight-trends')}
           >
             <img 
               src={trendAnalysisUrl}
@@ -108,7 +108,7 @@ const HumanResourceMenu = () => {
           {/* Rate Staff */}
           <div 
             className="flex justify-center items-center cursor-pointer hover:scale-105 transition-transform duration-300"
-            onClick={() => navigate('/staff-directory?rateMode=true')}
+            onClick={() => navigate('/staff-directory?rateMode=true&fromHrMenu=true')}
           >
             <img 
               src={rateStaffUrl}

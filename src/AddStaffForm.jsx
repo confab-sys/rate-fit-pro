@@ -1,10 +1,11 @@
 import React, { useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { collection, addDoc, query, where, getDocs } from 'firebase/firestore';
 import { db } from './firebase';
 
 const AddStaffForm = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [showModal, setShowModal] = useState(false);
   const [showCamera, setShowCamera] = useState(false);
   const [uploadedPhoto, setUploadedPhoto] = useState(null);
@@ -20,6 +21,12 @@ const AddStaffForm = () => {
   const videoRef = useRef(null);
   const fileInputRef = useRef(null);
   
+  // Check if user came from supervisor menu
+  const fromSupervisorMenu = location.state?.fromSupervisorMenu;
+  
+  console.log('Navigation state:', location.state); // Debug log
+  console.log('From supervisor menu:', fromSupervisorMenu); // Debug log
+
   const photoUploaderUrl = new URL('./assets/photo-uploader icon.svg', import.meta.url).href;
 
   const handleInputChange = (e) => {
@@ -168,6 +175,57 @@ const AddStaffForm = () => {
   return (
     <div className="min-h-screen w-full bg-[#0D1B2A] p-6">
       <h1 className="text-white text-xl mb-6 text-left">Add Staff</h1>
+      
+      {/* Navigation Buttons */}
+      <div className="max-w-xl mx-auto mb-6 space-y-2">
+        {/* Return to HR Menu Button - Hide if coming from supervisor menu */}
+        {!fromSupervisorMenu && (
+          <button
+            onClick={() => navigate('/human-resource-menu')}
+            className="w-full px-4 py-3 rounded-lg bg-[#1B263B] text-white hover:bg-[#22304a] transition-colors flex items-center justify-center space-x-2"
+          >
+            <svg 
+              xmlns="http://www.w3.org/2000/svg" 
+              className="h-5 w-5" 
+              fill="none" 
+              viewBox="0 0 24 24" 
+              stroke="currentColor"
+            >
+              <path 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+                strokeWidth={2} 
+                d="M10 19l-7-7m0 0l7-7m-7 7h18" 
+              />
+            </svg>
+            <span>Return to HR Menu</span>
+          </button>
+        )}
+
+        {/* Main Menu Button - Only show if coming from supervisor menu */}
+        {fromSupervisorMenu && (
+          <button
+            onClick={() => navigate('/supervisor-menu')}
+            className="w-full px-4 py-3 rounded-lg bg-[#1B263B] text-white hover:bg-[#22304a] transition-colors flex items-center justify-center space-x-2"
+          >
+            <svg 
+              xmlns="http://www.w3.org/2000/svg" 
+              className="h-5 w-5" 
+              fill="none" 
+              viewBox="0 0 24 24" 
+              stroke="currentColor"
+            >
+              <path 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+                strokeWidth={2} 
+                d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" 
+              />
+            </svg>
+            <span>Main Menu</span>
+          </button>
+        )}
+      </div>
       
       <form onSubmit={handleSubmit} className="max-w-xl mx-auto space-y-4">
         <div className="flex justify-center mb-6">

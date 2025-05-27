@@ -14,6 +14,14 @@ const AdminSupervisor = () => {
     return () => clearInterval(interval);
   }, []);
 
+  const handleExit = () => {
+    window.close(); // This will attempt to close the window
+    // If window.close() doesn't work (due to browser security), we'll show an alert
+    if (!window.closed) {
+      alert("Please close this window manually to exit the application.");
+    }
+  };
+
   return (
     <div className="min-h-screen w-full bg-[#0D1B2A] flex flex-col items-center">
       <div className="overflow-hidden mt-20 mb-10">
@@ -38,6 +46,14 @@ const AdminSupervisor = () => {
         className="w-60 h-auto animate-fade-in cursor-pointer hover:scale-105 transition-transform duration-300"
         onClick={() => navigate('/supervisor-login')}
       />
+      
+      {/* Exit Button */}
+      <button
+        onClick={handleExit}
+        className="mt-12 bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-full font-semibold shadow-xl transition duration-300 animate-fade-in"
+      >
+        Exit Application
+      </button>
     </div>
   );
 };

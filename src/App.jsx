@@ -32,6 +32,8 @@ import TrimesterAnalysis from './TrimesterAnalysis';
 import SixMonthAnalysis from './SixMonthAnalysis';
 import SuccessfullyRated from './SuccessfullyRated';
 import PerformanceDashboard from './PerformanceDashboard';
+import Reports from './Reports';
+import InsightTrends from './InsightTrends';
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -86,6 +88,8 @@ const App = () => {
         <Route path="/six-month-analysis" element={<SixMonthAnalysis />} />
         <Route path="/successfully-rated" element={<SuccessfullyRated />} />
         <Route path="/performance-dashboard" element={<PerformanceDashboard />} />
+        <Route path="/reports" element={<Reports />} />
+        <Route path="/insight-trends" element={<InsightTrends />} />
       </Routes>
     </Router>
   );

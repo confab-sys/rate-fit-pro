@@ -1,14 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 import { db } from './firebase';
 
 const PerformanceDashboard = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [staffMembers, setStaffMembers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [activeFilter, setActiveFilter] = useState('all');
+
+  // Check if user came from supervisor menu
+  const fromSupervisorMenu = location.state?.fromSupervisorMenu;
 
   useEffect(() => {
     const fetchStaffData = async () => {
@@ -57,10 +61,6 @@ const PerformanceDashboard = () => {
     fetchStaffData();
   }, []);
 
-  const handleBack = () => {
-    navigate('/supervisor-menu');
-  };
-
   const getScoreColor = (score) => {
     if (score >= 80) return 'bg-green-500';
     if (score >= 50) return 'bg-yellow-500';
@@ -99,27 +99,59 @@ const PerformanceDashboard = () => {
   return (
     <div className="min-h-screen w-full bg-[#0D1B2A]">
       <div className="p-6">
-        <div className="flex items-center mb-8">
-          <button 
-            onClick={handleBack}
-            className="text-white hover:text-gray-300 transition-colors"
-          >
-            <svg 
-              xmlns="http://www.w3.org/2000/svg" 
-              className="h-6 w-6 sm:h-8 sm:w-8" 
-              fill="none" 
-              viewBox="0 0 24 24" 
-              stroke="currentColor"
+        <div className="mb-8">
+          <h1 className="text-white text-xl sm:text-2xl font-bold text-center">Performance Dashboard</h1>
+        </div>
+
+        {/* Navigation Buttons */}
+        <div className="max-w-2xl mx-auto mb-4 space-y-2">
+          {/* Return to HR Menu Button - Hide if coming from supervisor menu */}
+          {!fromSupervisorMenu && (
+            <button
+              onClick={() => navigate('/human-resource-menu')}
+              className="w-full px-4 py-3 rounded-lg bg-[#1B263B] text-white hover:bg-[#22304a] transition-colors flex items-center justify-center space-x-2"
             >
-              <path 
-                strokeLinecap="round" 
-                strokeLinejoin="round" 
-                strokeWidth={2} 
-                d="M10 19l-7-7m0 0l7-7m-7 7h18" 
-              />
-            </svg>
-          </button>
-          <h1 className="text-white text-xl sm:text-2xl font-bold text-center flex-1">Performance Dashboard</h1>
+              <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                className="h-5 w-5" 
+                fill="none" 
+                viewBox="0 0 24 24" 
+                stroke="currentColor"
+              >
+                <path 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round" 
+                  strokeWidth={2} 
+                  d="M10 19l-7-7m0 0l7-7m-7 7h18" 
+                />
+              </svg>
+              <span>Return to HR Menu</span>
+            </button>
+          )}
+
+          {/* Main Menu Button - Only show if coming from supervisor menu */}
+          {fromSupervisorMenu && (
+            <button
+              onClick={() => navigate('/supervisor-menu')}
+              className="w-full px-4 py-3 rounded-lg bg-[#1B263B] text-white hover:bg-[#22304a] transition-colors flex items-center justify-center space-x-2"
+            >
+              <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                className="h-5 w-5" 
+                fill="none" 
+                viewBox="0 0 24 24" 
+                stroke="currentColor"
+              >
+                <path 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round" 
+                  strokeWidth={2} 
+                  d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" 
+                />
+              </svg>
+              <span>Main Menu</span>
+            </button>
+          )}
         </div>
 
         {/* Search Bar */}
@@ -183,33 +215,31 @@ const PerformanceDashboard = () => {
           </button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-3 gap-2 sm:gap-3 max-w-7xl mx-auto px-2 sm:px-4">
           {filteredStaff.map((staff) => (
             <div
               key={staff.id}
-              className="bg-[#1B263B] rounded-lg p-6 flex flex-col items-center cursor-pointer hover:bg-[#22304a] transition-colors"
+              className="bg-[#1B263B] rounded-lg p-2 sm:p-3 flex flex-col items-center cursor-pointer hover:bg-[#22304a] transition-colors"
               onClick={() => navigate(`/weekly-analysis/${staff.id}`, { state: { fromDashboard: true } })}
             >
-              <div className="flex items-center justify-between w-full">
-                <div className="flex items-center space-x-4">
-                  <img 
-                    src={staff.photo || 'https://via.placeholder.com/50'} 
-                    alt={staff.name}
-                    className="w-16 h-16 rounded-full object-cover"
-                    onError={(e) => {
-                      e.target.onerror = null;
-                      e.target.src = 'https://via.placeholder.com/50';
-                    }}
-                  />
-                  <div>
-                    <h3 className="text-white font-semibold text-lg">{staff.name}</h3>
-                    <p className="text-gray-400">ID: {staff.staffIdNo}</p>
-                    <p className="text-gray-400">{staff.department}</p>
+              <div className="flex flex-col items-center w-full">
+                <img 
+                  src={staff.photo || 'https://via.placeholder.com/50'} 
+                  alt={staff.name}
+                  className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover mb-2"
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = 'https://via.placeholder.com/50';
+                  }}
+                />
+                <div className="text-center w-full">
+                  <h3 className="text-white font-semibold text-xs sm:text-sm truncate">{staff.name}</h3>
+                  <p className="text-gray-400 text-[10px] sm:text-xs truncate">ID: {staff.staffIdNo}</p>
+                  <p className="text-gray-400 text-[10px] sm:text-xs truncate">{staff.department}</p>
+                  <div className="flex items-center justify-center space-x-1 mt-1">
+                    <div className={`w-2 h-2 rounded-full ${getScoreColor(staff.totalAverage)}`}></div>
+                    <span className="text-white font-semibold text-xs sm:text-sm">{staff.totalAverage}%</span>
                   </div>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <div className={`w-3 h-3 rounded-full ${getScoreColor(staff.totalAverage)}`}></div>
-                  <span className="text-white font-semibold">{staff.totalAverage}%</span>
                 </div>
               </div>
             </div>

@@ -4,10 +4,9 @@ import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
   server: {
-    host: true, // Listen on all local IPs
-    port: 3002, // Use port 3002
-    strictPort: false, // Try another port if 3001 is taken
-    open: true // Open browser on start
+    port: 5173,
+    strictPort: false,
+    host: true
   },
   base: '/',
   resolve: {
@@ -20,22 +19,63 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.svg'],
+      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
       manifest: {
-        name: 'My PWA App',
-        short_name: 'PWA',
-        start_url: '/',
-        display: 'standalone',
-        background_color: '#0D1B2A',
-        theme_color: '#2ECC71',
+        name: 'RateFit Pro',
+        short_name: 'RateFit Pro',
+        description: 'RateFit Pro - Staff Rating System',
+        theme_color: '#0D1B2A',
         icons: [
           {
-            src: '/pwa-icon.png',
+            src: 'pwa-192x192.png',
             sizes: '192x192',
-            type: 'image/png',
+            type: 'image/png'
           },
-        ],
+          {
+            src: 'pwa-512x512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'any maskable'
+          }
+        ]
       },
-    }),
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
+        runtimeCaching: [
+          {
+            urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'google-fonts-cache',
+              expiration: {
+                maxEntries: 10,
+                maxAgeSeconds: 60 * 60 * 24 * 365 // <== 365 days
+              },
+              cacheableResponse: {
+                statuses: [0, 200]
+              }
+            }
+          }
+        ]
+      }
+    })
   ],
+  preview: {
+    port: 5173,
+    strictPort: false,
+    host: true
+  },
+  build: {
+    outDir: 'dist',
+    sourcemap: true,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          charts: ['chart.js', 'react-chartjs-2'],
+          pdf: ['jspdf', 'html2canvas']
+        }
+      }
+    }
+  }
 })

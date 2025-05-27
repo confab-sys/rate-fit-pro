@@ -106,6 +106,27 @@ const AdminLogin = () => {
 
   return (
     <div className="min-h-screen w-full bg-[#0D1B2A] flex flex-col items-center overflow-x-hidden">
+      {/* Back Arrow Button */}
+      <button
+        onClick={() => navigate('/blank')}
+        className="absolute top-4 left-4 text-white hover:text-gray-300 transition-colors"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-8 w-8"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M10 19l-7-7m0 0l7-7m-7 7h18"
+          />
+        </svg>
+      </button>
+
       <h1 className="text-white text-3xl sm:text-4xl font-bold mt-10 sm:mt-20 mb-0 animate-fade-in px-4 text-center">
         Human Resource Login
       </h1>
@@ -181,7 +202,7 @@ const AdminLogin = () => {
           
           <button 
             className="text-emerald-400/90 text-sm hover:text-emerald-400 transition-colors underline underline-offset-2"
-            onClick={() => navigate('/create-account')}
+            onClick={() => navigate('/create-account', { state: { from: 'admin-login' } })}
           >
             Sign Up
           </button>

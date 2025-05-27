@@ -32,6 +32,10 @@ ChartJS.register(
 
 const RatingCharts = ({ aggregatedRatings, weeklyRatings, currentDate, staffName, showOnlyCategoryAverages }) => {
   const [activeOverlay, setActiveOverlay] = useState(null);
+  const [currentWeekRange, setCurrentWeekRange] = useState({ start: 1, end: 12 });
+  const [currentMonthRange, setCurrentMonthRange] = useState({ start: 0, end: 5 });
+  const weeksPerPage = 12;
+  const monthsPerPage = 6;
 
   // Define category colors and labels based on the image
   const categoryConfig = {
@@ -94,11 +98,11 @@ const RatingCharts = ({ aggregatedRatings, weeklyRatings, currentDate, staffName
   };
 
   // Prepare data for weekly progress bar chart
-  // Dynamically get unique week numbers from weeklyRatings and sort them
   const uniqueWeeks = [...new Set(weeklyRatings.map(rating => rating.week))]
     .sort((a, b) => a - b)
-    .slice(0, 12); // Limit to first 12 weeks
-  const weeklyProgressLabels = uniqueWeeks.map((_, index) => `Week ${index + 1}`);
+    .filter(week => week >= currentWeekRange.start && week <= currentWeekRange.end);
+
+  const weeklyProgressLabels = uniqueWeeks.map(week => `Week ${week}`);
 
   const weeklyData = {
     labels: weeklyProgressLabels,
@@ -269,6 +273,7 @@ const RatingCharts = ({ aggregatedRatings, weeklyRatings, currentDate, staffName
         ticks: {
           ...barOptions.scales.x.ticks,
           callback: function(value, index) {
+            const weekNumber = currentWeekRange.start + index;
             // Calculate average for this week across all categories
             const weekData = weeklyData.datasets
               .filter(dataset => dataset.label !== 'Total Average')
@@ -279,7 +284,7 @@ const RatingCharts = ({ aggregatedRatings, weeklyRatings, currentDate, staffName
             );
             
             return [
-              `Week ${index + 1}`,
+              `Week ${weekNumber}`,
               `${weekAverage}%`
             ];
           }
@@ -468,12 +473,68 @@ const RatingCharts = ({ aggregatedRatings, weeklyRatings, currentDate, staffName
 
   // Function to download chart data as CSV
   const downloadChartAsCSV = (data, title) => {
-    const headers = data.labels.join(',');
-    const values = data.datasets[0].data.join(',');
-    const csvContent = `${headers}\n${values}`;
+    // Special handling for Weekly Progress chart
+    if (title === 'Weekly Progress') {
+      // Find the latest week with ratings
+      const latestWeek = weeklyRatings.reduce((max, rating) => 
+        Math.max(max, rating.week), 0);
+      
+      // Use the minimum between latest week and 52
+      const totalWeeks = Math.min(latestWeek, 52);
+      
+      // Create headers for all weeks
+      const headers = ['Category', ...Array.from({ length: totalWeeks }, (_, i) => `Week ${i + 1}`)];
+      
+      // Create rows for each category
+      const rows = Object.keys(categoryConfig).map(categoryKey => {
+        const categoryData = Array(totalWeeks).fill(0);
+        
+        // Fill in the data for weeks that have ratings
+        weeklyRatings.forEach(rating => {
+          if (rating.week <= totalWeeks) {
+            const weekIndex = rating.week - 1;
+            if (rating[categoryKey] && typeof rating[categoryKey] === 'object') {
+              categoryData[weekIndex] = rating[categoryKey].percentage || 0;
+            } else if (rating[categoryKey]) {
+              categoryData[weekIndex] = rating[categoryKey];
+            }
+          }
+        });
+        
+        return [
+          categoryConfig[categoryKey].label,
+          ...categoryData
+        ];
+      });
+      
+      // Convert to CSV format
+      const csvContent = [
+        headers.join(','),
+        ...rows.map(row => row.join(','))
+      ].join('\n');
+      
+      const currentDate = new Date();
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8' });
+      saveAs(blob, `${title}_${staffName || 'Staff'}_${currentDate.getFullYear()}_${currentDate}.csv`);
+      return;
+    }
+
+    // Default handling for other charts
+    const headers = ['Category', ...data.labels];
+    const rows = data.datasets.map(dataset => {
+      return [
+        dataset.label,
+        ...dataset.data.map(value => value)
+      ];
+    });
+    
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.join(','))
+    ].join('\n');
     
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8' });
-    saveAs(blob, `${title}_${currentDate}.csv`);
+    saveAs(blob, `${title}_${staffName || 'Staff'}_${currentDate}.csv`);
   };
 
   // Function to render download overlay
@@ -534,6 +595,25 @@ const RatingCharts = ({ aggregatedRatings, weeklyRatings, currentDate, staffName
     </div>
   );
 
+  // Navigation functions for months
+  const handlePreviousMonths = () => {
+    if (currentMonthRange.start > 0) {
+      setCurrentMonthRange(prev => ({
+        start: Math.max(0, prev.start - monthsPerPage),
+        end: Math.max(monthsPerPage - 1, prev.end - monthsPerPage)
+      }));
+    }
+  };
+
+  const handleNextMonths = () => {
+    if (currentMonthRange.end < 11) { // Assuming we have 12 months total
+      setCurrentMonthRange(prev => ({
+        start: Math.min(6, prev.start + monthsPerPage),
+        end: Math.min(11, prev.end + monthsPerPage)
+      }));
+    }
+  };
+
   // Function to calculate monthly averages from weekly data
   const calculateMonthlyAverages = () => {
     // Get the first rating's date from weeklyRatings
@@ -545,8 +625,8 @@ const RatingCharts = ({ aggregatedRatings, weeklyRatings, currentDate, staffName
     const startMonth = startDate.getMonth();
     const startYear = startDate.getFullYear();
 
-    // Generate month labels for 6 months starting from the first rating
-    const monthLabels = Array.from({ length: 6 }, (_, i) => {
+    // Generate month labels for all months
+    const monthLabels = Array.from({ length: 12 }, (_, i) => {
       const monthIndex = (startMonth + i) % 12;
       const year = startMonth + i >= 12 ? startYear + 1 : startYear;
       const date = new Date(year, monthIndex, 1);
@@ -559,8 +639,14 @@ const RatingCharts = ({ aggregatedRatings, weeklyRatings, currentDate, staffName
       { start: 9, end: 12, label: monthLabels[2] },
       { start: 13, end: 16, label: monthLabels[3] },
       { start: 17, end: 20, label: monthLabels[4] },
-      { start: 21, end: 24, label: monthLabels[5] }
-    ];
+      { start: 21, end: 24, label: monthLabels[5] },
+      { start: 25, end: 28, label: monthLabels[6] },
+      { start: 29, end: 32, label: monthLabels[7] },
+      { start: 33, end: 36, label: monthLabels[8] },
+      { start: 37, end: 40, label: monthLabels[9] },
+      { start: 41, end: 44, label: monthLabels[10] },
+      { start: 45, end: 48, label: monthLabels[11] }
+    ].slice(currentMonthRange.start, currentMonthRange.end + 1);
 
     const monthlyData = {
       labels: monthRanges.map(range => range.label),
@@ -1526,6 +1612,25 @@ const RatingCharts = ({ aggregatedRatings, weeklyRatings, currentDate, staffName
     }
   };
 
+  // Navigation functions
+  const handlePreviousWeeks = () => {
+    if (currentWeekRange.start > 1) {
+      setCurrentWeekRange(prev => ({
+        start: Math.max(1, prev.start - weeksPerPage),
+        end: Math.max(weeksPerPage, prev.end - weeksPerPage)
+      }));
+    }
+  };
+
+  const handleNextWeeks = () => {
+    if (currentWeekRange.end < 52) {
+      setCurrentWeekRange(prev => ({
+        start: Math.min(41, prev.start + weeksPerPage),
+        end: Math.min(52, prev.end + weeksPerPage)
+      }));
+    }
+  };
+
   return (
     <div className="space-y-8">
       {/* Date Title */}
@@ -1547,14 +1652,74 @@ const RatingCharts = ({ aggregatedRatings, weeklyRatings, currentDate, staffName
             <div id="weeklyProgress" className="w-full h-full">
               <Bar data={weeklyData} options={weeklyProgressOptions} />
             </div>
+            {/* Week Navigation Arrows */}
+            <div className="absolute inset-y-0 left-0 flex items-center">
+              <button
+                onClick={handlePreviousWeeks}
+                disabled={currentWeekRange.start <= 1}
+                className={`p-2 rounded-full text-white text-2xl font-bold ${
+                  currentWeekRange.start <= 1
+                    ? 'text-gray-500 cursor-not-allowed'
+                    : 'text-blue-500 hover:text-blue-600'
+                }`}
+              >
+                {'<'}
+              </button>
+            </div>
+            <div className="absolute inset-y-0 right-0 flex items-center">
+              <button
+                onClick={handleNextWeeks}
+                disabled={currentWeekRange.end >= 52}
+                className={`p-2 rounded-full text-white text-2xl font-bold ${
+                  currentWeekRange.end >= 52
+                    ? 'text-gray-500 cursor-not-allowed'
+                    : 'text-blue-500 hover:text-blue-600'
+                }`}
+              >
+                {'>'}
+              </button>
+            </div>
+            {/* Week Range Display */}
+            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
+              <span className="text-white bg-[#1B263B] px-4 py-2 rounded-lg">
+                Weeks {currentWeekRange.start}-{currentWeekRange.end}
+              </span>
+            </div>
           </div>
 
           {/* 6-Month Progress Chart with Net Growth Section */}
           <div className="bg-[#1B263B] rounded-lg p-6 relative">
-            <div className="h-[400px]">
+            <div className="h-[400px] relative">
               {renderReportButton('monthlyProgress', '6-Month Progress', monthlyData)}
               <div id="monthlyProgress" className="w-full h-full">
                 <Bar data={monthlyData} options={monthlyOptions} />
+              </div>
+              <button
+                onClick={handlePreviousMonths}
+                disabled={currentMonthRange.start <= 0}
+                className={`absolute -left-8 top-1/2 -translate-y-1/2 p-2 rounded-full text-white text-2xl font-bold ${
+                  currentMonthRange.start <= 0
+                    ? 'text-gray-500 cursor-not-allowed'
+                    : 'text-blue-500 hover:text-blue-600'
+                }`}
+              >
+                {'<'}
+              </button>
+              <button
+                onClick={handleNextMonths}
+                disabled={currentMonthRange.end >= 11}
+                className={`absolute -right-8 top-1/2 -translate-y-1/2 p-2 rounded-full text-white text-2xl font-bold ${
+                  currentMonthRange.end >= 11
+                    ? 'text-gray-500 cursor-not-allowed'
+                    : 'text-blue-500 hover:text-blue-600'
+                }`}
+              >
+                {'>'}
+              </button>
+              <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-8">
+                <span className="text-white bg-[#1B263B] px-4 py-2 rounded-lg">
+                  Months {currentMonthRange.start + 1}-{currentMonthRange.end + 1}
+                </span>
               </div>
             </div>
             {/* Net Growth Section */}
@@ -1583,6 +1748,54 @@ const RatingCharts = ({ aggregatedRatings, weeklyRatings, currentDate, staffName
                 <span className={`text-lg font-semibold ${totalNetGrowth >= 0 ? 'text-green-500' : 'text-red-500'}`}>
                   {totalNetGrowth > 0 ? '+' : ''}{totalNetGrowth}%
                 </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Four-Year Progress Chart with Net Growth Section */}
+          <div className="bg-[#1B263B] rounded-lg p-6 relative">
+            <div className="h-[400px]">
+              {renderReportButton('fourYearProgress', 'Four-Year Progress', fourYearData)}
+              <div id="fourYearProgress" className="w-full h-full">
+                <Bar data={fourYearData} options={fourYearOptions} />
+              </div>
+            </div>
+            {/* Net Growth Section */}
+            <div className="mt-4 pt-4 border-t border-gray-600">
+              <div className="flex justify-between items-center">
+                <span className="text-white text-lg">Total Net Growth/Decline:</span>
+                <span className={`text-lg font-semibold ${fourYearNetGrowth >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                  {fourYearNetGrowth > 0 ? '+' : ''}{fourYearNetGrowth}%
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Six-Year Progress Chart with Net Growth Section */}
+          <div className="bg-[#1B263B] rounded-lg p-6 relative">
+            <div className="h-[400px]">
+              {renderReportButton('sixYearProgress', 'Six-Year Progress', sixYearData)}
+              <div id="sixYearProgress" className="w-full h-full">
+                <Bar data={sixYearData} options={sixYearOptions} />
+              </div>
+            </div>
+            {/* Net Growth Section */}
+            <div className="mt-4 pt-4 border-t border-gray-600">
+              <div className="flex justify-between items-center">
+                <span className="text-white text-lg">Total Net Growth/Decline:</span>
+                <span className={`text-lg font-semibold ${sixYearNetGrowth >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                  {sixYearNetGrowth > 0 ? '+' : ''}{sixYearNetGrowth}%
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Twenty-Year Progress Chart */}
+          <div className="bg-[#1B263B] rounded-lg p-6 relative">
+            <div className="h-[400px]">
+              {renderReportButton('twentyYearProgress', 'Twenty-Year Progress', twentyYearData)}
+              <div id="twentyYearProgress" className="w-full h-full">
+                <Bar data={twentyYearData} options={twentyYearOptions} />
               </div>
             </div>
           </div>
