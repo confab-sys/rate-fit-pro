@@ -116,7 +116,7 @@ const StaffDirectory = () => {
 
   const handleStaffClick = (staff) => {
     if (deleteMode) {
-      navigate(`/confirm-delete/${staff.id}`);
+      navigate(`/confirm-delete/${staff.id}`, { state: { fromSupervisorMenu } });
     } else if (rateMode) {
       navigate(`/rate-time/${staff.id}`);
     } else if (analysisMode) {

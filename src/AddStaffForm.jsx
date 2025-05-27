@@ -163,7 +163,7 @@ const AddStaffForm = () => {
         dateJoined: ''
       });
       setUploadedPhoto(null);
-      navigate('/staff-directory');
+      navigate('/staff-directory', { state: { fromSupervisorMenu } });
     } catch (error) {
       console.error('Error:', error);
       alert('Error saving data: ' + error.message);

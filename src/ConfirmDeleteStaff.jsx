@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { doc, getDoc, deleteDoc } from 'firebase/firestore';
 import { db } from './firebase';
 
 const ConfirmDeleteStaff = () => {
   const { staffId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
+  const fromSupervisorMenu = location.state?.fromSupervisorMenu || false;
   const [staff, setStaff] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -34,7 +36,7 @@ const ConfirmDeleteStaff = () => {
     setDeleting(true);
     try {
       await deleteDoc(doc(db, 'staff', staffId));
-      navigate('/staff-directory');
+      navigate('/staff-directory', { state: { fromSupervisorMenu } });
     } catch (err) {
       setError('Failed to delete staff record.');
     } finally {
@@ -68,7 +70,7 @@ const ConfirmDeleteStaff = () => {
           </button>
           <button
             className="px-6 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors font-semibold"
-            onClick={() => navigate('/staff-directory')}
+            onClick={() => navigate('/staff-directory', { state: { fromSupervisorMenu } })}
             disabled={deleting}
           >
             Cancel
