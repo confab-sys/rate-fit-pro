@@ -34,7 +34,7 @@ const SupervisorLogin = () => {
 
     try {
       // First check if the user exists and has biometric enabled
-      const user = await getUser(email);
+      const user = await getUser(email, 'supervisor');
       if (!user) {
         setError('User not found');
         return;
@@ -52,7 +52,7 @@ const SupervisorLogin = () => {
       }
 
       // If verification succeeds, log the user in
-      const userData = await loginUser(email, user.pin); // Use stored PIN for Firebase auth
+      const userData = await loginUser(email, user.pin, 'supervisor'); // Use stored PIN for Firebase auth
       if (userData) {
         console.log('Biometric login successful for:', userData.name);
         sessionStorage.setItem('supervisorName', userData.name);
@@ -73,36 +73,24 @@ const SupervisorLogin = () => {
   };
 
   const handleUnlock = async () => {
-    console.log('Login attempt - Email:', email, 'PIN length:', pin.length);
-    
     if (!email || !pin) {
       setError('Please enter both email and PIN');
       return;
     }
-    
-    if (pin.length !== 6) {
-      setError('PIN must be 6 digits');
-      setIsPinError(true);
-      return;
-    }
 
     try {
-      const user = await loginUser(email, pin);
-      if (user) {
-        console.log('Login successful for:', user.name);
-        sessionStorage.setItem('supervisorName', user.name);
+      const userData = await loginUser(email, pin, 'supervisor');
+      if (userData) {
+        console.log('Login successful for:', userData.name);
+        sessionStorage.setItem('supervisorName', userData.name);
         navigate('/welcome-supervisor');
       } else {
         setError('Invalid credentials');
-        setIsPinError(true);
       }
-    } catch (err) {
-      console.error('Login error:', err);
-      if (err.code === 'auth/user-not-found') {
-        setError('User not found');
-      } else if (err.code === 'auth/wrong-password') {
-        setError('Invalid PIN');
-        setIsPinError(true);
+    } catch (error) {
+      console.error('Login error:', error);
+      if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+        setError('Invalid email or PIN');
       } else {
         setError('Login failed. Please try again.');
       }

@@ -1,10 +1,43 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Allow read/write access to all collections for now
-    // In production, you should add proper authentication checks
-    match /{document=**} {
-      allow read, write: if true;
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isHR() {
+      return isAuthenticated() && 
+        exists(/databases/$(database)/documents/hr_users/$(request.auth.token.email));
+    }
+    
+    function isSupervisor() {
+      return isAuthenticated() && 
+        exists(/databases/$(database)/documents/supervisors/$(request.auth.token.email));
+    }
+
+    // HR Users collection
+    match /hr_users/{email} {
+      allow read: if isAuthenticated() && (isHR() || isSupervisor());
+      allow write: if isHR();
+    }
+
+    // Supervisors collection
+    match /supervisors/{email} {
+      allow read: if isAuthenticated() && (isHR() || isSupervisor());
+      allow write: if isHR();
+    }
+
+    // Staff collection
+    match /staff/{document=**} {
+      allow read: if isAuthenticated() && (isHR() || isSupervisor());
+      allow write: if isHR();
+    }
+
+    // Staff ratings collection
+    match /staff_ratings/{document=**} {
+      allow read: if isAuthenticated() && (isHR() || isSupervisor());
+      allow write: if isSupervisor();
     }
   }
 } 

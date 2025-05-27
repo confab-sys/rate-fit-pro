@@ -6,11 +6,12 @@ import {
 import { 
   doc, 
   setDoc, 
-  getDoc
+  getDoc,
+  collection
 } from 'firebase/firestore';
 import { db, auth } from '../firebase';
 
-export const addUser = async (userData) => {
+export const addUser = async (userData, userType = 'supervisor') => {
   try {
     console.log('Creating user with data:', { ...userData, pin: '***' }); // Log data without exposing PIN
 
@@ -35,11 +36,14 @@ export const addUser = async (userData) => {
       createdAt: new Date().toISOString(),
       biometricRegistered: userData.biometricRegistered || false,
       uid: userCredential.user.uid, // Store the Firebase Auth UID
-      pin: userData.pin // Store PIN for biometric authentication
+      pin: userData.pin, // Store PIN for biometric authentication
+      role: userType // Add role field
     };
 
-    await setDoc(doc(db, 'supervisors', userData.email), userDoc);
-    console.log('User data stored in Firestore');
+    // Store in appropriate collection based on user type
+    const collectionName = userType === 'hr' ? 'hr_users' : 'supervisors';
+    await setDoc(doc(db, collectionName, userData.email), userDoc);
+    console.log(`User data stored in ${collectionName} collection`);
 
     return true;
   } catch (error) {
@@ -59,9 +63,10 @@ export const addUser = async (userData) => {
   }
 };
 
-export const getUser = async (email) => {
+export const getUser = async (email, userType = 'supervisor') => {
   try {
-    const userDoc = await getDoc(doc(db, 'supervisors', email));
+    const collectionName = userType === 'hr' ? 'hr_users' : 'supervisors';
+    const userDoc = await getDoc(doc(db, collectionName, email));
     if (userDoc.exists()) {
       return userDoc.data();
     }
@@ -82,10 +87,11 @@ export const updateUser = async (email, userData) => {
   }
 };
 
-export const loginUser = async (email, pin) => {
+export const loginUser = async (email, pin, userType = 'supervisor') => {
   try {
     const userCredential = await signInWithEmailAndPassword(auth, email, pin);
-    const userDoc = await getDoc(doc(db, 'supervisors', email));
+    const collectionName = userType === 'hr' ? 'hr_users' : 'supervisors';
+    const userDoc = await getDoc(doc(db, collectionName, email));
     if (userDoc.exists()) {
       return userDoc.data();
     }

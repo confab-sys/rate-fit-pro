@@ -1,10 +1,13 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { addUser } from "./utils/database";
 import { registerBiometric } from "./utils/biometrics";
 
 const CreateAccount = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const userType = location.state?.from === 'admin-login' ? 'hr' : 'supervisor';
+  
   const rectangleUrl = new URL('./assets/Rectangle-green.svg', import.meta.url).href;
   const passwordManIcon = new URL('./assets/icon password man.svg', import.meta.url).href;
   const passwordKeyIcon = new URL('./assets/icon password key.svg', import.meta.url).href;
@@ -57,8 +60,8 @@ const CreateAccount = () => {
         };
 
         console.log('Attempting to create user in Firebase...');
-        // Add to database
-        await addUser(userData);
+        // Add to database with user type
+        await addUser(userData, userType);
         console.log('User created successfully in Firebase');
 
         // Reset form and navigate
@@ -69,7 +72,8 @@ const CreateAccount = () => {
           confirmPin: ''
         });
         console.log('Navigating to login page...');
-        navigate('/supervisor-login');
+        // Navigate to appropriate login page based on user type
+        navigate(userType === 'hr' ? '/admin-login' : '/supervisor-login');
       } catch (err) {
         console.error('Detailed error in account creation:', {
           message: err.message,
@@ -114,7 +118,7 @@ const CreateAccount = () => {
   return (
     <div className="min-h-screen w-full bg-[#0D1B2A] flex flex-col items-center overflow-x-hidden">
       <h1 className="text-white text-3xl sm:text-4xl font-bold mt-10 sm:mt-20 mb-0 animate-fade-in px-4 text-center">
-        Create Account
+        Create {userType === 'hr' ? 'HR' : 'Supervisor'} Account
       </h1>
       <div className="relative w-[95%] max-w-[600px] h-[70vh] mt-0 rounded-3xl overflow-hidden">
         <img 
