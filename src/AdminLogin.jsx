@@ -2,6 +2,9 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { loginUser, getUser } from "./utils/database";
 import { verifyBiometric } from "./utils/biometrics";
+import { getDoc, doc } from "firebase/firestore";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth, db } from "./firebase";
 
 const AdminLogin = () => {
   const navigate = useNavigate();
@@ -70,27 +73,32 @@ const AdminLogin = () => {
     }
   };
 
-  const handleUnlock = async () => {
-    if (!email || !pin) {
-      setError('Please enter both email and PIN');
-      return;
-    }
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setError('');
 
     try {
-      const userData = await loginUser(email, pin, 'hr');
-      if (userData) {
-        console.log('Login successful for:', userData.name);
-        sessionStorage.setItem('adminName', userData.name);
-        navigate('/human-resource-menu');
-      } else {
-        setError('Invalid credentials');
+      // Get the admin document to retrieve the PIN and passKey
+      const adminDoc = await getDoc(doc(db, 'admins', email));
+      
+      if (!adminDoc.exists()) {
+        setError('Invalid email or PIN');
+        return;
       }
-    } catch (error) {
-      console.error('Login error:', error);
-      if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+
+      const adminData = adminDoc.data();
+      const combinedPassword = `${pin}${adminData.passKey}`;
+
+      // Attempt to sign in with the combined password
+      await signInWithEmailAndPassword(auth, email, combinedPassword);
+      
+      // If successful, navigate to admin dashboard
+      navigate('/admin-dashboard');
+    } catch (err) {
+      if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password') {
         setError('Invalid email or PIN');
       } else {
-        setError('Login failed. Please try again.');
+        setError(err.message);
       }
     }
   };
@@ -174,7 +182,7 @@ const AdminLogin = () => {
               src={unlockIcon}
               alt="Unlock"
               className="w-12 h-12 cursor-pointer hover:scale-110 transition-transform duration-300"
-              onClick={handleUnlock}
+              onClick={handleLogin}
             />
             <img 
               src={biometricIcon}

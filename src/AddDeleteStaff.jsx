@@ -22,7 +22,7 @@ const AddDeleteStaff = () => {
         src={deleteStaffButtonUrl}
         alt="Delete Staff"
         className="w-48 h-48 mt-8 cursor-pointer hover:scale-110 transition-transform duration-300"
-        onClick={() => navigate('/staff-directory?deleteMode=true', { state: { fromSupervisorMenu } })}
+        onClick={() => navigate('/supervisor-staff-directory?deleteMode=true', { state: { fromSupervisorMenu } })}
       />
     </div>
   );

@@ -267,6 +267,7 @@ const StaffDirectory = () => {
                     </h2>
                     <p className="text-gray-400 text-[10px] sm:text-xs truncate">ID: {staff.staffIdNo}</p>
                     <p className="text-gray-400 text-[10px] sm:text-xs truncate">Department: {staff.department}</p>
+                    <p className="text-gray-400 text-[10px] sm:text-xs truncate">Branch: {staff.branchName}</p>
                   </div>
                 </div>
               </div>
@@ -304,6 +305,7 @@ const StaffDirectory = () => {
                 <div className="space-y-2">
                   <p className="text-white"><span className="text-gray-400">Staff ID:</span> {selectedStaff.staffIdNo}</p>
                   <p className="text-white"><span className="text-gray-400">Department:</span> {selectedStaff.department}</p>
+                  <p className="text-white"><span className="text-gray-400">Branch:</span> {selectedStaff.branchName}</p>
                   <p className="text-white"><span className="text-gray-400">Status:</span> {selectedStaff.status}</p>
                 </div>
               </div>

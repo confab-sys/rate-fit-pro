@@ -31,21 +31,59 @@ const AdminSupervisor = () => {
           </h1>
         )}
       </div>
-      <img 
-        src={new URL('./assets/admin-icon.svg', import.meta.url).href}
-        alt="Admin Icon"
-        className="w-60 h-auto animate-fade-in cursor-pointer hover:scale-105 transition-transform duration-300"
-        onClick={() => navigate('/admin-login')}
-      />
-      <h2 className="text-white text-2xl font-bold mt-8 mb-8 animate-fade-in">
-        or
-      </h2>
-      <img 
-        src={new URL('./assets/supervisor-icon.svg', import.meta.url).href}
-        alt="Supervisor Icon"
-        className="w-60 h-auto animate-fade-in cursor-pointer hover:scale-105 transition-transform duration-300"
-        onClick={() => navigate('/supervisor-login')}
-      />
+
+      {/* Icons Grid */}
+      <div className="grid grid-cols-2 gap-8 mb-12">
+        {/* Admin Icon */}
+        <div className="flex flex-col items-center">
+          <img 
+            src={new URL('./assets/new admin icon.svg', import.meta.url).href}
+            alt="Admin Icon"
+            className="w-40 h-auto animate-fade-in cursor-pointer hover:scale-105 transition-transform duration-300"
+            onClick={() => navigate('/new-admin-login')}
+          />
+        </div>
+
+        {/* HR Icon */}
+        <div className="flex flex-col items-center">
+          <img 
+            src={new URL('./assets/new hr icon.svg', import.meta.url).href}
+            alt="HR Icon"
+            className="w-40 h-auto animate-fade-in cursor-pointer hover:scale-105 transition-transform duration-300"
+            onClick={() => navigate('/new-hr-login')}
+          />
+        </div>
+
+        {/* Manager Icon */}
+        <div className="flex flex-col items-center">
+          <img 
+            src={new URL('./assets/new manager icon.svg', import.meta.url).href}
+            alt="Manager Icon"
+            className="w-40 h-auto animate-fade-in cursor-pointer hover:scale-105 transition-transform duration-300"
+            onClick={() => navigate('/new-manager-login')}
+          />
+        </div>
+
+        {/* Operations Icon */}
+        <div className="flex flex-col items-center">
+          <img 
+            src={new URL('./assets/new operations icon.svg', import.meta.url).href}
+            alt="Operations Icon"
+            className="w-40 h-auto animate-fade-in cursor-pointer hover:scale-105 transition-transform duration-300"
+            onClick={() => navigate('/operations-manager-login')}
+          />
+        </div>
+
+        {/* Supervisor Icon */}
+        <div className="flex flex-col items-center">
+          <img 
+            src={new URL('./assets/new supervisor icon.svg', import.meta.url).href}
+            alt="Supervisor Icon"
+            className="w-40 h-auto animate-fade-in cursor-pointer hover:scale-105 transition-transform duration-300"
+            onClick={() => navigate('/new-supervisor-login')}
+          />
+        </div>
+      </div>
       
       {/* Exit Button */}
       <button

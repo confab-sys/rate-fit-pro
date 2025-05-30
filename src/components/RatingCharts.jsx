@@ -30,7 +30,7 @@ ChartJS.register(
   ChartDataLabels
 );
 
-const RatingCharts = ({ aggregatedRatings, weeklyRatings, currentDate, staffName, showOnlyCategoryAverages }) => {
+const RatingCharts = ({ aggregatedRatings, weeklyRatings, currentDate, staffName, showOnlyCategoryAverages, hideYearOneProgress, hideFourYearProgress, hideSixYearProgress, hideTwentyYearProgress }) => {
   const [activeOverlay, setActiveOverlay] = useState(null);
   const [currentWeekRange, setCurrentWeekRange] = useState({ start: 1, end: 12 });
   const [currentMonthRange, setCurrentMonthRange] = useState({ start: 0, end: 5 });
@@ -1734,7 +1734,7 @@ const RatingCharts = ({ aggregatedRatings, weeklyRatings, currentDate, staffName
           </div>
 
           {/* Year 1 Progress Chart with Net Growth Section */}
-          <div className="bg-[#1B263B] rounded-lg p-6 relative">
+          <div className={`bg-[#1B263B] rounded-lg p-6 relative ${hideYearOneProgress ? 'hidden' : ''}`}>
             <div className="h-[400px]">
               {renderReportButton('yearlyProgress', 'Year 1 Progress', yearlyData)}
               <div id="yearlyProgress" className="w-full h-full">
@@ -1753,7 +1753,7 @@ const RatingCharts = ({ aggregatedRatings, weeklyRatings, currentDate, staffName
           </div>
 
           {/* Four-Year Progress Chart with Net Growth Section */}
-          <div className="bg-[#1B263B] rounded-lg p-6 relative">
+          <div className={`bg-[#1B263B] rounded-lg p-6 relative ${hideFourYearProgress ? 'hidden' : ''}`}>
             <div className="h-[400px]">
               {renderReportButton('fourYearProgress', 'Four-Year Progress', fourYearData)}
               <div id="fourYearProgress" className="w-full h-full">
@@ -1772,7 +1772,7 @@ const RatingCharts = ({ aggregatedRatings, weeklyRatings, currentDate, staffName
           </div>
 
           {/* Six-Year Progress Chart with Net Growth Section */}
-          <div className="bg-[#1B263B] rounded-lg p-6 relative">
+          <div className={`bg-[#1B263B] rounded-lg p-6 relative ${hideSixYearProgress ? 'hidden' : ''}`}>
             <div className="h-[400px]">
               {renderReportButton('sixYearProgress', 'Six-Year Progress', sixYearData)}
               <div id="sixYearProgress" className="w-full h-full">
@@ -1791,7 +1791,7 @@ const RatingCharts = ({ aggregatedRatings, weeklyRatings, currentDate, staffName
           </div>
 
           {/* Twenty-Year Progress Chart */}
-          <div className="bg-[#1B263B] rounded-lg p-6 relative">
+          <div className={`bg-[#1B263B] rounded-lg p-6 relative ${hideTwentyYearProgress ? 'hidden' : ''}`}>
             <div className="h-[400px]">
               {renderReportButton('twentyYearProgress', 'Twenty-Year Progress', twentyYearData)}
               <div id="twentyYearProgress" className="w-full h-full">

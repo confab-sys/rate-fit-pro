@@ -36,7 +36,7 @@ const ConfirmDeleteStaff = () => {
     setDeleting(true);
     try {
       await deleteDoc(doc(db, 'staff', staffId));
-      navigate('/staff-directory', { state: { fromSupervisorMenu } });
+      navigate('/new-hr-menu');
     } catch (err) {
       setError('Failed to delete staff record.');
     } finally {
@@ -70,7 +70,7 @@ const ConfirmDeleteStaff = () => {
           </button>
           <button
             className="px-6 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors font-semibold"
-            onClick={() => navigate('/staff-directory', { state: { fromSupervisorMenu } })}
+            onClick={() => navigate('/new-hr-menu')}
             disabled={deleting}
           >
             Cancel

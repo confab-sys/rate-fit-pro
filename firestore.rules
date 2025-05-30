@@ -6,11 +6,26 @@ service cloud.firestore {
       return request.auth != null;
     }
     
+    function isAdmin() {
+      return isAuthenticated() && 
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+    
+    function isOperationsManager() {
+      return isAuthenticated() && 
+        exists(/databases/$(database)/documents/operationsManagers/$(request.auth.uid));
+    }
+    
+    function isManager() {
+      return isAuthenticated() && 
+        exists(/databases/$(database)/documents/managers/$(request.auth.uid));
+    }
+
     function isHR() {
       return isAuthenticated() && 
         exists(/databases/$(database)/documents/hr_users/$(request.auth.token.email));
     }
-    
+
     function isSupervisor() {
       return isAuthenticated() && 
         exists(/databases/$(database)/documents/supervisors/$(request.auth.token.email));
@@ -99,32 +114,38 @@ service cloud.firestore {
         isValidTimestamp(request.resource.data.lastAttempt);
     }
 
+    // Admins collection
+    match /admins/{adminId} {
+      allow read: if isAdmin() || isOperationsManager();
+      allow write: if isAdmin();
+    }
+
+    // Operations Managers collection
+    match /operationsManagers/{managerId} {
+      allow read: if isAdmin() || (isOperationsManager() && request.auth.uid == managerId);
+      allow create: if isAdmin();
+      allow update: if isAdmin() || (isOperationsManager() && request.auth.uid == managerId);
+      allow delete: if isAdmin();
+    }
+
+    // Managers collection
+    match /managers/{managerId} {
+      allow read: if isAdmin() || isOperationsManager() || (isManager() && request.auth.uid == managerId);
+      allow create: if isAdmin() || isOperationsManager();
+      allow update: if isAdmin() || isOperationsManager() || (isManager() && request.auth.uid == managerId);
+      allow delete: if isAdmin() || isOperationsManager();
+    }
+
     // Staff collection
     match /staff/{document=**} {
-      allow read: if isAuthenticated() && (isHR() || isSupervisor());
-      allow create: if isHR() && 
-        request.resource.data.keys().hasAll(['name', 'staffIdNo', 'email', 'department', 'dateJoined']) &&
-        isValidEmail(request.resource.data.email);
-      allow update: if isHR() && 
-        request.resource.data.diff(resource.data).affectedKeys()
-          .hasOnly(['name', 'email', 'department', 'dateJoined']);
-      allow delete: if isHR();
+      allow read: if isAuthenticated() && (isAdmin() || isOperationsManager() || isManager());
+      allow write: if isAdmin() || isOperationsManager();
     }
 
     // Staff ratings collection
     match /staff_ratings/{document=**} {
-      allow read: if isAuthenticated() && (isHR() || isSupervisor());
-      allow create: if isSupervisor() && 
-        request.resource.data.keys().hasAll(['staffId', 'rating', 'timestamp']) &&
-        request.resource.data.rating >= 1 &&
-        request.resource.data.rating <= 5 &&
-        isValidTimestamp(request.resource.data.timestamp);
-      allow update: if isSupervisor() && 
-        request.resource.data.diff(resource.data).affectedKeys()
-          .hasOnly(['rating', 'timestamp']) &&
-        request.resource.data.rating >= 1 &&
-        request.resource.data.rating <= 5;
-      allow delete: if isHR();
+      allow read: if isAuthenticated() && (isAdmin() || isOperationsManager() || isManager());
+      allow write: if isAdmin() || isOperationsManager() || isManager();
     }
   }
 } 

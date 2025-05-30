@@ -36,7 +36,7 @@ const SupervisorMenu = () => {
             src={staffDirectoryUrl}
             alt="Staff Directory"
             className="w-24 h-24 sm:w-32 sm:h-32 cursor-pointer hover:scale-110 transition-transform duration-300"
-            onClick={() => navigate('/staff-directory?fromSupervisorMenu=true')}
+            onClick={() => navigate('/supervisor-staff-directory')}
           />
           
           <img 
@@ -71,14 +71,14 @@ const SupervisorMenu = () => {
             src={rateStaffSquareUrl}
             alt="Rate Staff"
             className="w-24 h-24 sm:w-32 sm:h-32 cursor-pointer hover:scale-110 transition-transform duration-300"
-            onClick={() => navigate('/staff-directory?rateMode=true&fromSupervisorMenu=true')}
+            onClick={() => navigate('/supervisor-staff-directory', { state: { rateMode: true } })}
           />
 
           <img 
             src={reportsUrl}
             alt="Reports"
             className="w-24 h-24 sm:w-32 sm:h-32 cursor-pointer hover:scale-110 transition-transform duration-300"
-            onClick={() => navigate('/reports', { state: { fromSupervisorMenu: true } })}
+            onClick={() => navigate('/supervisor-staff-directory')}
           />
 
           <img 

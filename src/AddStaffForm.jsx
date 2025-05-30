@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { collection, addDoc, query, where, getDocs } from 'firebase/firestore';
 import { db } from './firebase';
@@ -10,13 +10,15 @@ const AddStaffForm = () => {
   const [showCamera, setShowCamera] = useState(false);
   const [uploadedPhoto, setUploadedPhoto] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [branches, setBranches] = useState([]);
   const [formData, setFormData] = useState({
     name: '',
     idNo: '',
     staffIdNo: '',
     email: '',
     department: '',
-    dateJoined: ''
+    dateJoined: '',
+    branchName: ''
   });
   const videoRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -28,6 +30,25 @@ const AddStaffForm = () => {
   console.log('From supervisor menu:', fromSupervisorMenu); // Debug log
 
   const photoUploaderUrl = new URL('./assets/photo-uploader icon.svg', import.meta.url).href;
+
+  // Fetch branches from database
+  useEffect(() => {
+    const fetchBranches = async () => {
+      try {
+        const branchesQuery = query(collection(db, 'branches'));
+        const querySnapshot = await getDocs(branchesQuery);
+        const branchesList = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        setBranches(branchesList);
+      } catch (error) {
+        console.error('Error fetching branches:', error);
+      }
+    };
+
+    fetchBranches();
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -112,7 +133,7 @@ const AddStaffForm = () => {
       return;
     }
 
-    if (!formData.name || !formData.staffIdNo || !formData.email || !formData.department || !formData.dateJoined) {
+    if (!formData.name || !formData.staffIdNo || !formData.email || !formData.department || !formData.dateJoined || !formData.branchName) {
       alert('Please fill in all required fields');
       return;
     }
@@ -160,7 +181,8 @@ const AddStaffForm = () => {
         staffIdNo: '',
         email: '',
         department: '',
-        dateJoined: ''
+        dateJoined: '',
+        branchName: ''
       });
       setUploadedPhoto(null);
       navigate('/staff-directory', { state: { fromSupervisorMenu } });
@@ -302,6 +324,24 @@ const AddStaffForm = () => {
               className="w-full px-3 py-1.5 rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
               required
             />
+          </div>
+
+          <div className="space-y-1">
+            <label className="text-white block text-sm">Branch Name</label>
+            <select
+              name="branchName"
+              value={formData.branchName}
+              onChange={handleInputChange}
+              className="w-full px-3 py-1.5 rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+              required
+            >
+              <option value="">Select a branch</option>
+              {branches.map((branch) => (
+                <option key={branch.id} value={branch.branchName}>
+                  {branch.branchName}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div className="space-y-1">

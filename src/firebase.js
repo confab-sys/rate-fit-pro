@@ -1,6 +1,6 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
+import { getFirestore, doc, setDoc } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { getStorage } from 'firebase/storage';
 import { getAnalytics } from "firebase/analytics";
@@ -10,18 +10,28 @@ const firebaseConfig = {
   apiKey: "AIzaSyDZr2iyPMhbLikh4IFavx3f1rwo0slhCsQ",
   authDomain: "rate-fit-pro.firebaseapp.com",
   projectId: "rate-fit-pro",
-  storageBucket: "rate-fit-pro.firebasestorage.app",
+  storageBucket: "rate-fit-pro.appspot.com",
   messagingSenderId: "1074885052786",
   appId: "1:1074885052786:web:d3acfc68076adad45875eb",
   measurementId: "G-ZHF47LTX6H"
 };
 
 // Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const auth = getAuth(app);
-const storage = getStorage(app);
-const analytics = getAnalytics(app);
+let app;
+let db;
+let auth;
+let storage;
+let analytics;
+
+try {
+  app = initializeApp(firebaseConfig);
+  db = getFirestore(app);
+  auth = getAuth(app);
+  storage = getStorage(app);
+  analytics = getAnalytics(app);
+} catch (error) {
+  console.error("Firebase initialization error:", error);
+}
 
 // Security logging
 const logSecurityEvent = (event, details) => {
@@ -31,8 +41,16 @@ const logSecurityEvent = (event, details) => {
   });
 };
 
-// Enhanced Firebase connection test with security checks
+// Test Firebase connection
 const testFirebaseConnection = async () => {
+  if (!db) {
+    logSecurityEvent('Connection Test Failed', { 
+      error: 'Firestore not initialized',
+      code: 'INITIALIZATION_ERROR'
+    });
+    return false;
+  }
+
   try {
     // Test Firestore connection
     const testDoc = doc(db, 'test', 'connection');
@@ -41,44 +59,26 @@ const testFirebaseConnection = async () => {
       testType: 'security_check'
     });
     logSecurityEvent('Firestore Connection Test', { status: 'success' });
-    
-    // Verify the test document was saved
-    const savedDoc = await getDoc(testDoc);
-    if (savedDoc.exists()) {
-      logSecurityEvent('Document Verification', { status: 'success' });
-    } else {
-      throw new Error('Test document was not saved properly');
-    }
-    
-    // Test Auth connection
-    const currentUser = auth.currentUser;
-    logSecurityEvent('Auth Connection Test', { status: 'success' });
-    
     return true;
   } catch (error) {
     logSecurityEvent('Connection Test Failed', { 
       error: error.message,
       code: error.code
     });
-    
-    if (error.code === 'permission-denied') {
-      console.error('Permission denied. Please check your database rules.');
-    } else if (error.code === 'not-found') {
-      console.error('Database not found. Please check your configuration.');
-    } else {
-      console.error('Unknown error:', error);
-    }
+    console.error('Firebase connection error:', error);
     return false;
   }
 };
 
 // Run connection test
-testFirebaseConnection().then(success => {
-  if (success) {
-    logSecurityEvent('Firebase Initialization', { status: 'success' });
-  } else {
-    logSecurityEvent('Firebase Initialization', { status: 'failed' });
-  }
-});
+if (db) {
+  testFirebaseConnection().then(success => {
+    if (success) {
+      logSecurityEvent('Firebase Initialization', { status: 'success' });
+    } else {
+      logSecurityEvent('Firebase Initialization', { status: 'failed' });
+    }
+  });
+}
 
 export { db, auth, storage, analytics, logSecurityEvent }; 

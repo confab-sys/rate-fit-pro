@@ -213,6 +213,28 @@ const WeeklyAnalysis = () => {
                 Across all performance categories, {staff.name} maintains an average score of {overallCategoryAverage}%.
                 This provides a comprehensive view of their performance across different aspects of their role.
               </p>
+              <div className="mt-4 bg-gray-100 p-4 rounded-lg">
+                <div className="flex justify-between items-center">
+                  <span className="font-medium text-black">Total Average Score</span>
+                  <span className={`font-bold text-2xl ${
+                    overallCategoryAverage >= 80 ? 'text-green-600' : 
+                    overallCategoryAverage >= 60 ? 'text-yellow-600' : 
+                    'text-red-600'
+                  }`}>
+                    {overallCategoryAverage}%
+                  </span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-3 mt-2">
+                  <div 
+                    className={`h-3 rounded-full ${
+                      overallCategoryAverage >= 80 ? 'bg-green-600' : 
+                      overallCategoryAverage >= 60 ? 'bg-yellow-600' : 
+                      'bg-red-600'
+                    }`}
+                    style={{ width: `${overallCategoryAverage}%` }}
+                  />
+                </div>
+              </div>
             </div>
 
             <div>
@@ -293,6 +315,15 @@ const WeeklyAnalysis = () => {
   return (
     <div className="min-h-screen w-full bg-[#0D1B2A] p-6">
       <div className="flex flex-col items-center pt-8">
+        <div className="w-full max-w-4xl flex justify-start mb-4">
+          <button
+            onClick={() => navigate('/supervisor-menu')}
+            className="flex items-center gap-2 text-white hover:text-blue-400 transition-colors duration-200"
+          >
+            <FaHome className="text-xl" />
+            <span>Back to Supervisor Menu</span>
+          </button>
+        </div>
         <h1 className="text-white text-3xl font-bold mb-8">Weekly Analysis</h1>
         
         {staff && (
@@ -329,29 +360,23 @@ const WeeklyAnalysis = () => {
         {/* Category Averages Report */}
         {generateCategoryAveragesReport()}
 
-        {/* Charts */}
-        <div className="w-full max-w-4xl">
-          <RatingCharts 
-            aggregatedRatings={aggregatedRatings} 
-            weeklyRatings={weeklyRatings} 
-            currentDate={currentDate}
-            staffName={staff?.name}
-            showOnlyCategoryAverages={showOnlyCategoryAverages}
-          />
-        </div>
-
-        {/* Navigation Icons */}
-        <div className="flex gap-8 mt-8">
-          <div 
-            onClick={handleMainMenu}
-            className="flex flex-col items-center cursor-pointer group"
-          >
-            <div className="w-16 h-16 rounded-full bg-blue-600 flex items-center justify-center group-hover:bg-blue-700 transition-colors duration-200">
-              <FaHome className="text-white text-2xl" />
-            </div>
-            <span className="text-white text-sm mt-2 group-hover:text-blue-400 transition-colors duration-200">Main Menu</span>
+        {/* Rating Charts */}
+        {!showOnlyCategoryAverages && (
+          <div className="w-full max-w-4xl">
+            <RatingCharts
+              weeklyRatings={weeklyRatings}
+              monthlyRatings={monthlyRatings}
+              aggregatedRatings={aggregatedRatings}
+              currentDate={currentDate}
+              staffName={staff?.name}
+              showOnlyCategoryAverages={showOnlyCategoryAverages}
+              hideYearOneProgress={true}
+              hideFourYearProgress={true}
+              hideSixYearProgress={true}
+              hideTwentyYearProgress={true}
+            />
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

@@ -3,6 +3,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const { initializeCronJobs, generateMockRatings } = require('./services/cronService');
+const organizationRoutes = require('./routes/organizationRoutes');
 
 const app = express();
 
@@ -30,6 +31,8 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/staff-rat
 .catch(err => console.error('MongoDB connection error:', err));
 
 // Routes
+app.use('/api/organizations', organizationRoutes);
+
 app.get('/api/ratings/weekly', async (req, res) => {
   try {
     const weeklyRatings = await analyzeWeeklyRatings();

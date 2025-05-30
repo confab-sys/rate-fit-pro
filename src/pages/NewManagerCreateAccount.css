@@ -1,0 +1,110 @@
+.manager-create-account-container {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #0D1B2A;
+  padding: 20px;
+}
+
+.forms-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  width: 100%;
+  max-width: 400px;
+}
+
+.create-account-form-container,
+.add-supervisor-form-container {
+  background-color: rgba(46, 204, 113, 0.2); /* 2ECC71 with 20% opacity */
+  padding: 2rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  width: 100%;
+}
+
+.create-account-form-container h2,
+.add-supervisor-form-container h2 {
+  color: #FFFFFF;
+  text-align: center;
+  margin-bottom: 1.5rem;
+  font-weight: 700;
+  font-size: 1.75rem;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+/* First form labels */
+.create-account-form-container .form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #000000;
+  font-weight: 500;
+}
+
+/* Second form labels */
+.add-supervisor-form-container .form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #FFFFFF;
+  font-weight: 500;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+  color: #000000;
+}
+
+/* Second form input text */
+.add-supervisor-form-container .form-group input {
+  color: #FFFFFF;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.form-group input::placeholder {
+  color: #666666;
+}
+
+/* Second form placeholder */
+.add-supervisor-form-container .form-group input::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #2ECC71;
+}
+
+.form-group input.bg-gray-100 {
+  background-color: rgba(255, 255, 255, 0.1);
+  cursor: not-allowed;
+  color: #FFFFFF;
+}
+
+.create-account-button,
+.add-supervisor-button {
+  width: 100%;
+  padding: 0.75rem;
+  background-color: #2ECC71;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.create-account-button:hover,
+.add-supervisor-button:hover {
+  background-color: #27AE60;
+} 
