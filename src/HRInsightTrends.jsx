@@ -13,6 +13,7 @@ const HRInsightTrends = () => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [activeCategoryFilter, setActiveCategoryFilter] = useState(null);
+  const [activeStaffCategoryFilter, setActiveStaffCategoryFilter] = useState(null);
   const [expandedBranches, setExpandedBranches] = useState({});
 
   // Define category colors and labels
@@ -249,21 +250,34 @@ const HRInsightTrends = () => {
 
       if (!matchesSearch) return false;
 
-      // Apply category filter if active
-      if (activeCategoryFilter) {
-        return staff.categoryAverages[activeCategoryFilter] >= 50;
+      // Apply staff category filter if active
+      if (activeStaffCategoryFilter) {
+        return staff.categoryAverages[activeStaffCategoryFilter] >= 50;
       }
 
       return true;
     })
     .sort((a, b) => {
-      // If a category filter is active, sort by that category's score
-      if (activeCategoryFilter) {
-        return b.categoryAverages[activeCategoryFilter] - a.categoryAverages[activeCategoryFilter];
+      // If a staff category filter is active, sort by that category's score
+      if (activeStaffCategoryFilter) {
+        return b.categoryAverages[activeStaffCategoryFilter] - a.categoryAverages[activeStaffCategoryFilter];
       }
       // Otherwise, sort by total average
       return b.totalAverage - a.totalAverage;
     });
+
+  // Group filtered staff by branch
+  const getGroupedStaff = () => {
+    const grouped = {};
+    filteredStaff.forEach(staff => {
+      const branch = staff.branch;
+      if (!grouped[branch]) {
+        grouped[branch] = [];
+      }
+      grouped[branch].push(staff);
+    });
+    return grouped;
+  };
 
   if (loading) {
     return (
@@ -395,49 +409,127 @@ const HRInsightTrends = () => {
           </div>
         </div>
 
-        {/* Staff List */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredStaff.map((staff) => (
-            <div
-              key={staff.id}
-              className="bg-[#1B263B] rounded-lg p-4 hover:bg-[#22304a] transition-colors cursor-pointer"
-              onClick={() => navigate(`/staff-analysis/${staff.id}`)}
-            >
-              <div className="flex items-center space-x-4">
-                <div className="w-16 h-16 rounded-full overflow-hidden">
-                  <img
-                    src={staff.photo || 'https://via.placeholder.com/150'}
-                    alt={staff.name}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <div className="flex-1">
-                  <h3 className="text-white font-semibold">{staff.name}</h3>
-                  <p className="text-gray-400 text-sm">ID: {staff.staffIdNo}</p>
-                  <p className="text-gray-400 text-sm">{staff.department}</p>
-                  <p className="text-gray-400 text-sm">Branch: {staff.branch}</p>
-                </div>
-                <div className="text-right">
-                  <div className={`inline-block px-3 py-1 rounded-full ${getScoreColor(staff.totalAverage)} text-white text-sm font-semibold`}>
-                    {staff.totalAverage}%
-                  </div>
-                </div>
-              </div>
+        {/* Dividing Line */}
+        <div className="max-w-7xl mx-auto mb-8">
+          <div className="h-px bg-gray-700"></div>
+        </div>
 
-              {/* Category Scores */}
-              <div className="mt-4 grid grid-cols-2 gap-2">
-                {Object.entries(categoryConfig).map(([key, config]) => (
-                  <div key={key} className="flex items-center justify-between">
-                    <span className="text-gray-400 text-sm">{config.label}</span>
-                    <div className={`px-2 py-1 rounded-full ${getScoreColor(staff.categoryAverages[key])} text-white text-xs font-semibold`}>
-                      {staff.categoryAverages[key]}%
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+        {/* Staff Category Filter Buttons */}
+        <div className="flex flex-wrap gap-2 justify-center mb-6">
+          {Object.entries(categoryConfig).map(([key, config]) => (
+            <button
+              key={key}
+              onClick={() => setActiveStaffCategoryFilter(activeStaffCategoryFilter === key ? null : key)}
+              className={`px-4 py-2 rounded-lg ${
+                activeStaffCategoryFilter === key ? config.color : 'bg-[#1B263B]'
+              } text-white hover:opacity-90 transition-colors`}
+              style={{
+                border: activeStaffCategoryFilter === key ? `2px solid ${config.borderColor}` : 'none'
+              }}
+            >
+              {config.label} {activeStaffCategoryFilter === key && '↓'}
+            </button>
           ))}
         </div>
+
+        {/* Staff List */}
+        {activeStaffCategoryFilter ? (
+          // Display staff grouped by branch when a category filter is active
+          <div className="max-w-7xl mx-auto px-2 sm:px-4">
+            {Object.entries(getGroupedStaff()).map(([branch, staff]) => (
+              <div key={branch} className="mb-8">
+                <h2 className="text-white text-xl font-semibold mb-4">
+                  Branch: {branch} <span className="text-gray-400 text-lg">({staff.length} staff members)</span>
+                </h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {staff.map((staffMember) => (
+                    <div
+                      key={staffMember.id}
+                      className="bg-[#1B263B] rounded-lg p-4 hover:bg-[#22304a] transition-colors cursor-pointer"
+                      onClick={() => navigate(`/staff-analysis/${staffMember.id}`)}
+                    >
+                      <div className="flex items-center space-x-4">
+                        <div className="w-16 h-16 rounded-full overflow-hidden">
+                          <img
+                            src={staffMember.photo || 'https://via.placeholder.com/150'}
+                            alt={staffMember.name}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="text-white font-semibold">{staffMember.name}</h3>
+                          <p className="text-gray-400 text-sm">ID: {staffMember.staffIdNo}</p>
+                          <p className="text-gray-400 text-sm">{staffMember.department}</p>
+                        </div>
+                        <div className="text-right">
+                          <div className={`inline-block px-3 py-1 rounded-full ${getScoreColor(staffMember.totalAverage)} text-white text-sm font-semibold`}>
+                            {staffMember.totalAverage}%
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Category Scores */}
+                      <div className="mt-4 grid grid-cols-2 gap-2">
+                        {Object.entries(categoryConfig).map(([key, config]) => (
+                          <div key={key} className="flex items-center justify-between">
+                            <span className="text-gray-400 text-sm">{config.label}</span>
+                            <div className={`px-2 py-1 rounded-full ${getScoreColor(staffMember.categoryAverages[key])} text-white text-xs font-semibold`}>
+                              {staffMember.categoryAverages[key]}%
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          // Regular staff grid view when no category filter is active
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filteredStaff.map((staff) => (
+              <div
+                key={staff.id}
+                className="bg-[#1B263B] rounded-lg p-4 hover:bg-[#22304a] transition-colors cursor-pointer"
+                onClick={() => navigate(`/staff-analysis/${staff.id}`)}
+              >
+                <div className="flex items-center space-x-4">
+                  <div className="w-16 h-16 rounded-full overflow-hidden">
+                    <img
+                      src={staff.photo || 'https://via.placeholder.com/150'}
+                      alt={staff.name}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-white font-semibold">{staff.name}</h3>
+                    <p className="text-gray-400 text-sm">ID: {staff.staffIdNo}</p>
+                    <p className="text-gray-400 text-sm">{staff.department}</p>
+                    <p className="text-gray-400 text-sm">Branch: {staff.branch}</p>
+                  </div>
+                  <div className="text-right">
+                    <div className={`inline-block px-3 py-1 rounded-full ${getScoreColor(staff.totalAverage)} text-white text-sm font-semibold`}>
+                      {staff.totalAverage}%
+                    </div>
+                  </div>
+                </div>
+
+                {/* Category Scores */}
+                <div className="mt-4 grid grid-cols-2 gap-2">
+                  {Object.entries(categoryConfig).map(([key, config]) => (
+                    <div key={key} className="flex items-center justify-between">
+                      <span className="text-gray-400 text-sm">{config.label}</span>
+                      <div className={`px-2 py-1 rounded-full ${getScoreColor(staff.categoryAverages[key])} text-white text-xs font-semibold`}>
+                        {staff.categoryAverages[key]}%
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
 
         {filteredStaff.length === 0 && (
           <div className="text-center text-gray-400 mt-8">

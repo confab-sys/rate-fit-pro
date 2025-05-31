@@ -11,6 +11,7 @@ const HRPerformanceDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [activeFilter, setActiveFilter] = useState('all');
+  const [groupedStaff, setGroupedStaff] = useState({});
 
   // Check if user came from HR menu
   const fromHrMenu = location.state?.fromNewHrMenu;
@@ -65,6 +66,18 @@ const HRPerformanceDashboard = () => {
         }
 
         setStaffMembers(staffList);
+
+        // Group staff by branch
+        const grouped = staffList.reduce((acc, staff) => {
+          const branch = staff.branch;
+          if (!acc[branch]) {
+            acc[branch] = [];
+          }
+          acc[branch].push(staff);
+          return acc;
+        }, {});
+        setGroupedStaff(grouped);
+
         setLoading(false);
       } catch (err) {
         console.error('Error fetching data:', err);
@@ -102,6 +115,42 @@ const HRPerformanceDashboard = () => {
         return true;
     }
   });
+
+  // Get branches with low performing staff when priority filter is active
+  const getPriorityBranches = () => {
+    const priorityBranches = {};
+    Object.entries(groupedStaff).forEach(([branch, staff]) => {
+      const lowPerformers = staff.filter(s => s.totalAverage < 50);
+      if (lowPerformers.length > 0) {
+        priorityBranches[branch] = lowPerformers;
+      }
+    });
+    return priorityBranches;
+  };
+
+  // Get branches with average performing staff when average filter is active
+  const getAverageBranches = () => {
+    const averageBranches = {};
+    Object.entries(groupedStaff).forEach(([branch, staff]) => {
+      const averagePerformers = staff.filter(s => s.totalAverage >= 50 && s.totalAverage < 80);
+      if (averagePerformers.length > 0) {
+        averageBranches[branch] = averagePerformers;
+      }
+    });
+    return averageBranches;
+  };
+
+  // Get branches with top performing staff when top filter is active
+  const getTopBranches = () => {
+    const topBranches = {};
+    Object.entries(groupedStaff).forEach(([branch, staff]) => {
+      const topPerformers = staff.filter(s => s.totalAverage >= 80);
+      if (topPerformers.length > 0) {
+        topBranches[branch] = topPerformers;
+      }
+    });
+    return topBranches;
+  };
 
   if (loading) {
     return (
@@ -204,38 +253,164 @@ const HRPerformanceDashboard = () => {
           </button>
         </div>
 
-        <div className="grid grid-cols-3 gap-2 sm:gap-3 max-w-7xl mx-auto px-2 sm:px-4">
-          {filteredStaff.map((staff) => (
-            <div
-              key={staff.id}
-              className="bg-[#1B263B] rounded-lg p-2 sm:p-3 flex flex-col items-center cursor-pointer hover:bg-[#22304a] transition-colors"
-              onClick={() => navigate(`/hr-view-report/${staff.id}`, { state: { fromHrDashboard: true } })}
-            >
-              <div className="flex flex-col items-center w-full">
-                <img 
-                  src={staff.photo || 'https://via.placeholder.com/50'} 
-                  alt={staff.name}
-                  className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover mb-2"
-                  onError={(e) => {
-                    e.target.onerror = null;
-                    e.target.src = 'https://via.placeholder.com/50';
-                  }}
-                />
-                <div className="text-center w-full">
-                  <h3 className="text-white font-semibold text-xs sm:text-sm truncate">{staff.name}</h3>
-                  <p className="text-gray-400 text-[10px] sm:text-xs truncate">ID: {staff.staffIdNo}</p>
-                  <p className="text-gray-400 text-[10px] sm:text-xs truncate">{staff.department}</p>
-                  <p className="text-gray-400 text-[10px] sm:text-xs truncate">Staff from Branch {staff.branch}</p>
-                  <p className="text-green-400 text-[10px] sm:text-xs truncate">Managed by: {staff.managerName}</p>
-                  <div className="flex items-center justify-center space-x-1 mt-1">
-                    <div className={`w-2 h-2 rounded-full ${getScoreColor(staff.totalAverage)}`}></div>
-                    <span className="text-white font-semibold text-xs sm:text-sm">{staff.totalAverage}%</span>
+        {activeFilter === 'priority' ? (
+          // Display branches with low performing staff
+          <div className="max-w-7xl mx-auto px-2 sm:px-4">
+            {Object.entries(getPriorityBranches()).map(([branch, staff]) => (
+              <div key={branch} className="mb-8">
+                <h2 className="text-white text-xl font-semibold mb-4">
+                  Branch: {branch} <span className="text-gray-400 text-lg">({staff.length} staff members)</span>
+                </h2>
+                <div className="grid grid-cols-3 gap-2 sm:gap-3">
+                  {staff.map((staffMember) => (
+                    <div
+                      key={staffMember.id}
+                      className="bg-[#1B263B] rounded-lg p-2 sm:p-3 flex flex-col items-center cursor-pointer hover:bg-[#22304a] transition-colors"
+                      onClick={() => navigate(`/hr-view-report/${staffMember.id}`, { state: { fromHrDashboard: true } })}
+                    >
+                      <div className="flex flex-col items-center w-full">
+                        <img 
+                          src={staffMember.photo || 'https://via.placeholder.com/50'} 
+                          alt={staffMember.name}
+                          className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover mb-2"
+                          onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.src = 'https://via.placeholder.com/50';
+                          }}
+                        />
+                        <div className="text-center w-full">
+                          <h3 className="text-white font-semibold text-xs sm:text-sm truncate">{staffMember.name}</h3>
+                          <p className="text-gray-400 text-[10px] sm:text-xs truncate">ID: {staffMember.staffIdNo}</p>
+                          <p className="text-gray-400 text-[10px] sm:text-xs truncate">{staffMember.department}</p>
+                          <div className="flex items-center justify-center space-x-1 mt-1">
+                            <div className={`w-2 h-2 rounded-full ${getScoreColor(staffMember.totalAverage)}`}></div>
+                            <span className="text-white font-semibold text-xs sm:text-sm">{staffMember.totalAverage}%</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : activeFilter === 'average' ? (
+          // Display branches with average performing staff
+          <div className="max-w-7xl mx-auto px-2 sm:px-4">
+            {Object.entries(getAverageBranches()).map(([branch, staff]) => (
+              <div key={branch} className="mb-8">
+                <h2 className="text-white text-xl font-semibold mb-4">
+                  Branch: {branch} <span className="text-gray-400 text-lg">({staff.length} staff members)</span>
+                </h2>
+                <div className="grid grid-cols-3 gap-2 sm:gap-3">
+                  {staff.map((staffMember) => (
+                    <div
+                      key={staffMember.id}
+                      className="bg-[#1B263B] rounded-lg p-2 sm:p-3 flex flex-col items-center cursor-pointer hover:bg-[#22304a] transition-colors"
+                      onClick={() => navigate(`/hr-view-report/${staffMember.id}`, { state: { fromHrDashboard: true } })}
+                    >
+                      <div className="flex flex-col items-center w-full">
+                        <img 
+                          src={staffMember.photo || 'https://via.placeholder.com/50'} 
+                          alt={staffMember.name}
+                          className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover mb-2"
+                          onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.src = 'https://via.placeholder.com/50';
+                          }}
+                        />
+                        <div className="text-center w-full">
+                          <h3 className="text-white font-semibold text-xs sm:text-sm truncate">{staffMember.name}</h3>
+                          <p className="text-gray-400 text-[10px] sm:text-xs truncate">ID: {staffMember.staffIdNo}</p>
+                          <p className="text-gray-400 text-[10px] sm:text-xs truncate">{staffMember.department}</p>
+                          <div className="flex items-center justify-center space-x-1 mt-1">
+                            <div className={`w-2 h-2 rounded-full ${getScoreColor(staffMember.totalAverage)}`}></div>
+                            <span className="text-white font-semibold text-xs sm:text-sm">{staffMember.totalAverage}%</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : activeFilter === 'top' ? (
+          // Display branches with top performing staff
+          <div className="max-w-7xl mx-auto px-2 sm:px-4">
+            {Object.entries(getTopBranches()).map(([branch, staff]) => (
+              <div key={branch} className="mb-8">
+                <h2 className="text-white text-xl font-semibold mb-4">
+                  Branch: {branch} <span className="text-gray-400 text-lg">({staff.length} staff members)</span>
+                </h2>
+                <div className="grid grid-cols-3 gap-2 sm:gap-3">
+                  {staff.map((staffMember) => (
+                    <div
+                      key={staffMember.id}
+                      className="bg-[#1B263B] rounded-lg p-2 sm:p-3 flex flex-col items-center cursor-pointer hover:bg-[#22304a] transition-colors"
+                      onClick={() => navigate(`/hr-view-report/${staffMember.id}`, { state: { fromHrDashboard: true } })}
+                    >
+                      <div className="flex flex-col items-center w-full">
+                        <img 
+                          src={staffMember.photo || 'https://via.placeholder.com/50'} 
+                          alt={staffMember.name}
+                          className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover mb-2"
+                          onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.src = 'https://via.placeholder.com/50';
+                          }}
+                        />
+                        <div className="text-center w-full">
+                          <h3 className="text-white font-semibold text-xs sm:text-sm truncate">{staffMember.name}</h3>
+                          <p className="text-gray-400 text-[10px] sm:text-xs truncate">ID: {staffMember.staffIdNo}</p>
+                          <p className="text-gray-400 text-[10px] sm:text-xs truncate">{staffMember.department}</p>
+                          <div className="flex items-center justify-center space-x-1 mt-1">
+                            <div className={`w-2 h-2 rounded-full ${getScoreColor(staffMember.totalAverage)}`}></div>
+                            <span className="text-white font-semibold text-xs sm:text-sm">{staffMember.totalAverage}%</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          // Regular staff grid view for no filter
+          <div className="grid grid-cols-3 gap-2 sm:gap-3 max-w-7xl mx-auto px-2 sm:px-4">
+            {filteredStaff.map((staff) => (
+              <div
+                key={staff.id}
+                className="bg-[#1B263B] rounded-lg p-2 sm:p-3 flex flex-col items-center cursor-pointer hover:bg-[#22304a] transition-colors"
+                onClick={() => navigate(`/hr-view-report/${staff.id}`, { state: { fromHrDashboard: true } })}
+              >
+                <div className="flex flex-col items-center w-full">
+                  <img 
+                    src={staff.photo || 'https://via.placeholder.com/50'} 
+                    alt={staff.name}
+                    className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover mb-2"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = 'https://via.placeholder.com/50';
+                    }}
+                  />
+                  <div className="text-center w-full">
+                    <h3 className="text-white font-semibold text-xs sm:text-sm truncate">{staff.name}</h3>
+                    <p className="text-gray-400 text-[10px] sm:text-xs truncate">ID: {staff.staffIdNo}</p>
+                    <p className="text-gray-400 text-[10px] sm:text-xs truncate">{staff.department}</p>
+                    <p className="text-gray-400 text-[10px] sm:text-xs truncate">Staff from Branch {staff.branch}</p>
+                    <p className="text-green-400 text-[10px] sm:text-xs truncate">Managed by: {staff.managerName}</p>
+                    <div className="flex items-center justify-center space-x-1 mt-1">
+                      <div className={`w-2 h-2 rounded-full ${getScoreColor(staff.totalAverage)}`}></div>
+                      <span className="text-white font-semibold text-xs sm:text-sm">{staff.totalAverage}%</span>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
 
         {filteredStaff.length === 0 && (
           <div className="text-white text-center mt-10">

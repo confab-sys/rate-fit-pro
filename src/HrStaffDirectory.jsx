@@ -24,6 +24,14 @@ const HrStaffDirectory = () => {
   const [lastRatedDates, setLastRatedDates] = useState({});
   const [groupedStaff, setGroupedStaff] = useState({});
   const [selectedBranch, setSelectedBranch] = useState('All');
+  const [staffPerformance, setStaffPerformance] = useState({});
+
+  // Function to get color based on performance score
+  const getScoreColor = (score) => {
+    if (score >= 80) return 'bg-green-500';
+    if (score >= 50) return 'bg-yellow-500';
+    return 'bg-red-500';
+  };
 
   // Function to check if a staff member was rated within the last week
   const isRatedWithinLastWeek = (staffId) => {
@@ -65,6 +73,27 @@ const HrStaffDirectory = () => {
         }, {});
         
         setGroupedStaff(grouped);
+
+        // Fetch performance data for each staff member
+        const performanceData = {};
+        for (const staff of staffData) {
+          const ratingsQuery = query(
+            collection(db, 'staff', staff.id, 'monthlyRatings'),
+            orderBy('timestamp', 'desc')
+          );
+          const ratingsSnapshot = await getDocs(ratingsQuery);
+          let totalAverage = 0;
+          
+          if (!ratingsSnapshot.empty) {
+            // Calculate total average from all ratings
+            const ratings = ratingsSnapshot.docs.map(doc => doc.data());
+            const totalPercentage = ratings.reduce((sum, rating) => sum + (rating.averagePercentage || 0), 0);
+            totalAverage = Math.round(totalPercentage / ratings.length);
+          }
+          
+          performanceData[staff.id] = totalAverage;
+        }
+        setStaffPerformance(performanceData);
 
         // Fetch last rated dates for each staff member
         const ratedDates = {};
@@ -281,6 +310,7 @@ const HrStaffDirectory = () => {
                 {staffList.map((staff) => {
                   const isRated = ratedStaffIds.includes(staff.id);
                   const isRecentlyRated = isRatedWithinLastWeek(staff.id);
+                  const performanceScore = staffPerformance[staff.id] || 0;
                   
                   return (
                     <div
@@ -304,6 +334,10 @@ const HrStaffDirectory = () => {
                           </h2>
                           <p className="text-gray-400 text-[10px] sm:text-xs truncate">ID: {staff.staffIdNo}</p>
                           <p className="text-gray-400 text-[10px] sm:text-xs truncate">Department: {staff.department}</p>
+                          <div className="flex items-center justify-center space-x-1 mt-1">
+                            <div className={`w-2 h-2 rounded-full ${getScoreColor(performanceScore)}`}></div>
+                            <span className="text-white font-semibold text-xs sm:text-sm">{performanceScore}%</span>
+                          </div>
                         </div>
                       </div>
                     </div>

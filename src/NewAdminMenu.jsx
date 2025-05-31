@@ -9,7 +9,6 @@ const NewAdminMenu = () => {
   const performanceDashboardUrl = new URL('./assets/perfomance-dashboard.svg', import.meta.url).href;
   const insightTrendsUrl = new URL('./assets/insight-trends.svg', import.meta.url).href;
   const alertFromHrUrl = new URL('./assets/alert-from-hr.svg', import.meta.url).href;
-  const reportsUrl = new URL('./assets/reprts-supervisor.svg', import.meta.url).href;
   const logOutSquareUrl = new URL('./assets/log-out-square icon.svg', import.meta.url).href;
   const categoryManagerUrl = new URL('./assets/category manager.svg', import.meta.url).href;
   const branchAnalysisUrl = new URL('./assets/branch analysis.svg', import.meta.url).href;
@@ -52,13 +51,6 @@ const NewAdminMenu = () => {
             alt="HR Alerts"
             className="w-24 h-24 sm:w-32 sm:h-32 cursor-pointer hover:scale-110 transition-transform duration-300"
             onClick={() => navigate('/hr-alerts')}
-          />
-
-          <img 
-            src={reportsUrl}
-            alt="Reports"
-            className="w-24 h-24 sm:w-32 sm:h-32 cursor-pointer hover:scale-110 transition-transform duration-300"
-            onClick={() => navigate('/reports', { state: { fromNewAdminMenu: true } })}
           />
 
           <img 
