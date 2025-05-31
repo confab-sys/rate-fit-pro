@@ -204,7 +204,7 @@ const HrStaffDirectory = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen w-full bg-[#0D1B2A] p-6">
+      <div className="min-h-screen w-full bg-[#8B2E3C] p-6">
         <div className="text-white text-center mt-10">Loading staff directory...</div>
       </div>
     );
@@ -212,14 +212,14 @@ const HrStaffDirectory = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen w-full bg-[#0D1B2A] p-6">
+      <div className="min-h-screen w-full bg-[#8B2E3C] p-6">
         <div className="text-red-500 text-center mt-10">{error}</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen w-full bg-[#0D1B2A] overflow-x-hidden">
+    <div className="min-h-screen w-full bg-[#8B2E3C] overflow-x-hidden">
       <div className="p-2 sm:p-4">
         {/* Header */}
         <div className="flex items-center justify-between mb-4 sm:mb-8">
@@ -232,7 +232,7 @@ const HrStaffDirectory = () => {
             {/* Return to HR Menu Button */}
             <button
               onClick={() => navigate('/new-hr-menu')}
-              className="px-4 py-3 rounded-lg bg-[#1B263B] text-white hover:bg-[#22304a] transition-colors flex items-center justify-center space-x-2"
+              className="px-4 py-3 rounded-lg bg-[#f2c078] text-[#8B2E3C] hover:bg-[#e5b56a] transition-colors flex items-center justify-center space-x-2"
             >
               <svg 
                 xmlns="http://www.w3.org/2000/svg" 
@@ -261,10 +261,10 @@ const HrStaffDirectory = () => {
               placeholder="Search staff by name, ID, or department..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full px-3 py-2 sm:px-4 sm:py-3 rounded-lg bg-[#1B263B] text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
+              className="w-full px-3 py-2 sm:px-4 sm:py-3 rounded-lg bg-[#f2c078] text-[#8B2E3C] placeholder-[#8B2E3C]/60 focus:outline-none focus:ring-2 focus:ring-[#f2c078] text-sm sm:text-base"
             />
             <svg
-              className="absolute right-2 top-2.5 sm:right-3 sm:top-3.5 h-4 w-4 sm:h-5 sm:w-5 text-gray-400"
+              className="absolute right-2 top-2.5 sm:right-3 sm:top-3.5 h-4 w-4 sm:h-5 sm:w-5 text-[#8B2E3C]"
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"
@@ -289,8 +289,8 @@ const HrStaffDirectory = () => {
                 onClick={() => setSelectedBranch(branch)}
                 className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
                   selectedBranch === branch
-                    ? 'bg-blue-500 text-white'
-                    : 'bg-[#1B263B] text-gray-300 hover:bg-[#22304a]'
+                    ? 'bg-[#f2c078] text-[#8B2E3C]'
+                    : 'bg-[#f2c078]/20 text-white hover:bg-[#f2c078]/30'
                 }`}
               >
                 {branch} <span className="ml-1 text-xs opacity-75">({branchCounts[branch]})</span>
@@ -303,7 +303,7 @@ const HrStaffDirectory = () => {
         <div className="max-w-7xl mx-auto px-2 sm:px-4">
           {Object.entries(filteredGroupedStaff).map(([branch, staffList]) => (
             <div key={branch} className="mb-8">
-              <h2 className="text-white text-lg sm:text-xl font-semibold mb-4 border-b border-[#1B263B] pb-2">
+              <h2 className="text-white text-lg sm:text-xl font-semibold mb-4 border-b border-[#f2c078]/30 pb-2">
                 {branch}
               </h2>
               <div className="grid grid-cols-3 gap-2 sm:gap-3">
@@ -316,7 +316,7 @@ const HrStaffDirectory = () => {
                     <div
                       key={staff.id}
                       onClick={() => handleStaffClick(staff)}
-                      className={`bg-[#1B263B] rounded-lg p-2 sm:p-3 hover:shadow-lg transition-shadow cursor-pointer ${
+                      className={`bg-[#f2c078] rounded-lg p-2 sm:p-3 hover:shadow-lg transition-shadow cursor-pointer ${
                         isRecentlyRated ? 'border-2 border-green-500' : ''
                       }`}
                     >
@@ -329,14 +329,14 @@ const HrStaffDirectory = () => {
                           />
                         </div>
                         <div className="flex-1 min-w-0 w-full text-center">
-                          <h2 className="text-white text-xs sm:text-sm font-semibold truncate">
+                          <h2 className="text-[#8B2E3C] text-xs sm:text-sm font-semibold truncate">
                             {staff.name}
                           </h2>
-                          <p className="text-gray-400 text-[10px] sm:text-xs truncate">ID: {staff.staffIdNo}</p>
-                          <p className="text-gray-400 text-[10px] sm:text-xs truncate">Department: {staff.department}</p>
+                          <p className="text-[#8B2E3C]/80 text-[10px] sm:text-xs truncate">ID: {staff.staffIdNo}</p>
+                          <p className="text-[#8B2E3C]/80 text-[10px] sm:text-xs truncate">Department: {staff.department}</p>
                           <div className="flex items-center justify-center space-x-1 mt-1">
                             <div className={`w-2 h-2 rounded-full ${getScoreColor(performanceScore)}`}></div>
-                            <span className="text-white font-semibold text-xs sm:text-sm">{performanceScore}%</span>
+                            <span className="text-[#8B2E3C] font-semibold text-xs sm:text-sm">{performanceScore}%</span>
                           </div>
                         </div>
                       </div>
@@ -357,12 +357,12 @@ const HrStaffDirectory = () => {
         {/* Staff Details Modal */}
         {selectedStaff && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-[#1B263B] rounded-lg p-6 w-[90%] max-w-2xl">
+            <div className="bg-[#f2c078] rounded-lg p-6 w-[90%] max-w-2xl">
               <div className="flex justify-between items-start mb-4">
-                <h2 className="text-white text-2xl font-bold">{selectedStaff.name}</h2>
+                <h2 className="text-[#8B2E3C] text-2xl font-bold">{selectedStaff.name}</h2>
                 <button
                   onClick={() => setSelectedStaff(null)}
-                  className="text-white hover:text-gray-300"
+                  className="text-[#8B2E3C] hover:text-[#8B2E3C]/80"
                 >
                   ✕
                 </button>
@@ -376,10 +376,10 @@ const HrStaffDirectory = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <p className="text-white"><span className="text-gray-400">Staff ID:</span> {selectedStaff.staffIdNo}</p>
-                  <p className="text-white"><span className="text-gray-400">Department:</span> {selectedStaff.department}</p>
-                  <p className="text-white"><span className="text-gray-400">Branch:</span> {selectedStaff.branchName}</p>
-                  <p className="text-white"><span className="text-gray-400">Status:</span> {selectedStaff.status}</p>
+                  <p className="text-[#8B2E3C]"><span className="text-[#8B2E3C]/80">Staff ID:</span> {selectedStaff.staffIdNo}</p>
+                  <p className="text-[#8B2E3C]"><span className="text-[#8B2E3C]/80">Department:</span> {selectedStaff.department}</p>
+                  <p className="text-[#8B2E3C]"><span className="text-[#8B2E3C]/80">Branch:</span> {selectedStaff.branchName}</p>
+                  <p className="text-[#8B2E3C]"><span className="text-[#8B2E3C]/80">Status:</span> {selectedStaff.status}</p>
                 </div>
               </div>
             </div>

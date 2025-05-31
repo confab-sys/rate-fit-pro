@@ -73,12 +73,12 @@ const NewAdminLogin = () => {
           // Combine PIN and passKey for authentication
           const combinedPassword = `${formData.pin}${adminData.passKey}`;
           await signInWithEmailAndPassword(auth, formData.email, combinedPassword);
-          
-          // Store admin name in sessionStorage
-          sessionStorage.setItem('adminName', formData.name);
-          
+      
+      // Store admin name in sessionStorage
+      sessionStorage.setItem('adminName', formData.name);
+      
           // Navigate to admin menu
-          navigate('/new-admin-menu');
+      navigate('/new-admin-menu');
         } catch (authError) {
           console.error('Authentication error:', authError);
           setError('Authentication failed. Please check your credentials.');

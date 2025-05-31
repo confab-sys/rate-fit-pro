@@ -12,6 +12,7 @@ const HRPerformanceDashboard = () => {
   const [search, setSearch] = useState('');
   const [activeFilter, setActiveFilter] = useState('all');
   const [groupedStaff, setGroupedStaff] = useState({});
+  const [error, setError] = useState(null);
 
   // Check if user came from HR menu
   const fromHrMenu = location.state?.fromNewHrMenu;
@@ -81,6 +82,7 @@ const HRPerformanceDashboard = () => {
         setLoading(false);
       } catch (err) {
         console.error('Error fetching data:', err);
+        setError(err.message);
         setLoading(false);
       }
     };
@@ -154,14 +156,22 @@ const HRPerformanceDashboard = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen w-full bg-[#0D1B2A] flex items-center justify-center">
+      <div className="min-h-screen w-full bg-[#8B2E3C] flex items-center justify-center">
         <div className="text-white text-xl">Loading...</div>
       </div>
     );
   }
 
+  if (error) {
+    return (
+      <div className="min-h-screen w-full bg-[#8B2E3C] p-6">
+        <div className="text-red-500 text-center mt-10">{error}</div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen w-full bg-[#0D1B2A]">
+    <div className="min-h-screen w-full bg-[#8B2E3C]">
       <div className="p-6">
         <div className="mb-8">
           <h1 className="text-white text-xl sm:text-2xl font-bold text-center">HR Performance Dashboard</h1>
@@ -172,7 +182,7 @@ const HRPerformanceDashboard = () => {
           {/* Return to HR Menu Button */}
           <button
             onClick={() => navigate('/new-hr-menu')}
-            className="w-full px-4 py-3 rounded-lg bg-[#1B263B] text-white hover:bg-[#22304a] transition-colors flex items-center justify-center space-x-2"
+            className="w-full px-4 py-3 rounded-lg bg-[#f2c078] text-[#8B2E3C] hover:bg-[#e5b56a] transition-colors flex items-center justify-center space-x-2 border-2 border-black"
           >
             <svg 
               xmlns="http://www.w3.org/2000/svg" 
@@ -200,10 +210,10 @@ const HRPerformanceDashboard = () => {
               placeholder="Search by name, ID, department, or branch..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full px-4 py-3 rounded-lg bg-[#1B263B] text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-3 rounded-lg bg-[#f2c078] text-[#8B2E3C] placeholder-[#8B2E3C]/60 focus:outline-none focus:ring-2 focus:ring-[#f2c078] border-2 border-black"
             />
             <svg
-              className="absolute right-3 top-3.5 h-5 w-5 text-gray-400"
+              className="absolute right-3 top-3.5 h-5 w-5 text-[#8B2E3C]"
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"
@@ -223,30 +233,30 @@ const HRPerformanceDashboard = () => {
         <div className="max-w-2xl mx-auto mb-8 flex justify-center space-x-4">
           <button
             onClick={() => setActiveFilter(activeFilter === 'priority' ? 'all' : 'priority')}
-            className={`px-4 py-2 rounded-lg transition-colors ${
+            className={`px-4 py-2 rounded-lg transition-colors border-2 border-black ${
               activeFilter === 'priority'
-                ? 'bg-red-500 text-white'
-                : 'bg-[#1B263B] text-white hover:bg-red-500/20'
+                ? 'bg-[#f2c078] text-[#8B2E3C]'
+                : 'bg-[#f2c078]/20 text-white hover:bg-[#f2c078]/30'
             }`}
           >
             Priority
           </button>
           <button
             onClick={() => setActiveFilter(activeFilter === 'average' ? 'all' : 'average')}
-            className={`px-4 py-2 rounded-lg transition-colors ${
+            className={`px-4 py-2 rounded-lg transition-colors border-2 border-black ${
               activeFilter === 'average'
-                ? 'bg-yellow-500 text-white'
-                : 'bg-[#1B263B] text-white hover:bg-yellow-500/20'
+                ? 'bg-[#f2c078] text-[#8B2E3C]'
+                : 'bg-[#f2c078]/20 text-white hover:bg-[#f2c078]/30'
             }`}
           >
             Average
           </button>
           <button
             onClick={() => setActiveFilter(activeFilter === 'top' ? 'all' : 'top')}
-            className={`px-4 py-2 rounded-lg transition-colors ${
+            className={`px-4 py-2 rounded-lg transition-colors border-2 border-black ${
               activeFilter === 'top'
-                ? 'bg-green-500 text-white'
-                : 'bg-[#1B263B] text-white hover:bg-green-500/20'
+                ? 'bg-[#f2c078] text-[#8B2E3C]'
+                : 'bg-[#f2c078]/20 text-white hover:bg-[#f2c078]/30'
             }`}
           >
             Top Performance
@@ -259,13 +269,13 @@ const HRPerformanceDashboard = () => {
             {Object.entries(getPriorityBranches()).map(([branch, staff]) => (
               <div key={branch} className="mb-8">
                 <h2 className="text-white text-xl font-semibold mb-4">
-                  Branch: {branch} <span className="text-gray-400 text-lg">({staff.length} staff members)</span>
+                  Branch: {branch} <span className="text-gray-200 text-lg">({staff.length} staff members)</span>
                 </h2>
                 <div className="grid grid-cols-3 gap-2 sm:gap-3">
                   {staff.map((staffMember) => (
                     <div
                       key={staffMember.id}
-                      className="bg-[#1B263B] rounded-lg p-2 sm:p-3 flex flex-col items-center cursor-pointer hover:bg-[#22304a] transition-colors"
+                      className="bg-[#f2c078] rounded-lg p-2 sm:p-3 flex flex-col items-center cursor-pointer hover:bg-[#e5b56a] transition-colors border-2 border-black"
                       onClick={() => navigate(`/hr-view-report/${staffMember.id}`, { state: { fromHrDashboard: true } })}
                     >
                       <div className="flex flex-col items-center w-full">
@@ -279,12 +289,12 @@ const HRPerformanceDashboard = () => {
                           }}
                         />
                         <div className="text-center w-full">
-                          <h3 className="text-white font-semibold text-xs sm:text-sm truncate">{staffMember.name}</h3>
-                          <p className="text-gray-400 text-[10px] sm:text-xs truncate">ID: {staffMember.staffIdNo}</p>
-                          <p className="text-gray-400 text-[10px] sm:text-xs truncate">{staffMember.department}</p>
+                          <h3 className="text-black font-semibold text-xs sm:text-sm truncate">{staffMember.name}</h3>
+                          <p className="text-black/80 text-[10px] sm:text-xs truncate">ID: {staffMember.staffIdNo}</p>
+                          <p className="text-black/80 text-[10px] sm:text-xs truncate">{staffMember.department}</p>
                           <div className="flex items-center justify-center space-x-1 mt-1">
                             <div className={`w-2 h-2 rounded-full ${getScoreColor(staffMember.totalAverage)}`}></div>
-                            <span className="text-white font-semibold text-xs sm:text-sm">{staffMember.totalAverage}%</span>
+                            <span className="text-black font-semibold text-xs sm:text-sm">{staffMember.totalAverage}%</span>
                           </div>
                         </div>
                       </div>
@@ -300,13 +310,13 @@ const HRPerformanceDashboard = () => {
             {Object.entries(getAverageBranches()).map(([branch, staff]) => (
               <div key={branch} className="mb-8">
                 <h2 className="text-white text-xl font-semibold mb-4">
-                  Branch: {branch} <span className="text-gray-400 text-lg">({staff.length} staff members)</span>
+                  Branch: {branch} <span className="text-gray-200 text-lg">({staff.length} staff members)</span>
                 </h2>
                 <div className="grid grid-cols-3 gap-2 sm:gap-3">
                   {staff.map((staffMember) => (
                     <div
                       key={staffMember.id}
-                      className="bg-[#1B263B] rounded-lg p-2 sm:p-3 flex flex-col items-center cursor-pointer hover:bg-[#22304a] transition-colors"
+                      className="bg-[#f2c078] rounded-lg p-2 sm:p-3 flex flex-col items-center cursor-pointer hover:bg-[#e5b56a] transition-colors border-2 border-black"
                       onClick={() => navigate(`/hr-view-report/${staffMember.id}`, { state: { fromHrDashboard: true } })}
                     >
                       <div className="flex flex-col items-center w-full">
@@ -320,12 +330,12 @@ const HRPerformanceDashboard = () => {
                           }}
                         />
                         <div className="text-center w-full">
-                          <h3 className="text-white font-semibold text-xs sm:text-sm truncate">{staffMember.name}</h3>
-                          <p className="text-gray-400 text-[10px] sm:text-xs truncate">ID: {staffMember.staffIdNo}</p>
-                          <p className="text-gray-400 text-[10px] sm:text-xs truncate">{staffMember.department}</p>
+                          <h3 className="text-black font-semibold text-xs sm:text-sm truncate">{staffMember.name}</h3>
+                          <p className="text-black/80 text-[10px] sm:text-xs truncate">ID: {staffMember.staffIdNo}</p>
+                          <p className="text-black/80 text-[10px] sm:text-xs truncate">{staffMember.department}</p>
                           <div className="flex items-center justify-center space-x-1 mt-1">
                             <div className={`w-2 h-2 rounded-full ${getScoreColor(staffMember.totalAverage)}`}></div>
-                            <span className="text-white font-semibold text-xs sm:text-sm">{staffMember.totalAverage}%</span>
+                            <span className="text-black font-semibold text-xs sm:text-sm">{staffMember.totalAverage}%</span>
                           </div>
                         </div>
                       </div>
@@ -341,13 +351,13 @@ const HRPerformanceDashboard = () => {
             {Object.entries(getTopBranches()).map(([branch, staff]) => (
               <div key={branch} className="mb-8">
                 <h2 className="text-white text-xl font-semibold mb-4">
-                  Branch: {branch} <span className="text-gray-400 text-lg">({staff.length} staff members)</span>
+                  Branch: {branch} <span className="text-gray-200 text-lg">({staff.length} staff members)</span>
                 </h2>
                 <div className="grid grid-cols-3 gap-2 sm:gap-3">
                   {staff.map((staffMember) => (
                     <div
                       key={staffMember.id}
-                      className="bg-[#1B263B] rounded-lg p-2 sm:p-3 flex flex-col items-center cursor-pointer hover:bg-[#22304a] transition-colors"
+                      className="bg-[#f2c078] rounded-lg p-2 sm:p-3 flex flex-col items-center cursor-pointer hover:bg-[#e5b56a] transition-colors border-2 border-black"
                       onClick={() => navigate(`/hr-view-report/${staffMember.id}`, { state: { fromHrDashboard: true } })}
                     >
                       <div className="flex flex-col items-center w-full">
@@ -361,12 +371,12 @@ const HRPerformanceDashboard = () => {
                           }}
                         />
                         <div className="text-center w-full">
-                          <h3 className="text-white font-semibold text-xs sm:text-sm truncate">{staffMember.name}</h3>
-                          <p className="text-gray-400 text-[10px] sm:text-xs truncate">ID: {staffMember.staffIdNo}</p>
-                          <p className="text-gray-400 text-[10px] sm:text-xs truncate">{staffMember.department}</p>
+                          <h3 className="text-black font-semibold text-xs sm:text-sm truncate">{staffMember.name}</h3>
+                          <p className="text-black/80 text-[10px] sm:text-xs truncate">ID: {staffMember.staffIdNo}</p>
+                          <p className="text-black/80 text-[10px] sm:text-xs truncate">{staffMember.department}</p>
                           <div className="flex items-center justify-center space-x-1 mt-1">
                             <div className={`w-2 h-2 rounded-full ${getScoreColor(staffMember.totalAverage)}`}></div>
-                            <span className="text-white font-semibold text-xs sm:text-sm">{staffMember.totalAverage}%</span>
+                            <span className="text-black font-semibold text-xs sm:text-sm">{staffMember.totalAverage}%</span>
                           </div>
                         </div>
                       </div>
@@ -382,7 +392,7 @@ const HRPerformanceDashboard = () => {
             {filteredStaff.map((staff) => (
               <div
                 key={staff.id}
-                className="bg-[#1B263B] rounded-lg p-2 sm:p-3 flex flex-col items-center cursor-pointer hover:bg-[#22304a] transition-colors"
+                className="bg-[#f2c078] rounded-lg p-2 sm:p-3 flex flex-col items-center cursor-pointer hover:bg-[#e5b56a] transition-colors border-2 border-black"
                 onClick={() => navigate(`/hr-view-report/${staff.id}`, { state: { fromHrDashboard: true } })}
               >
                 <div className="flex flex-col items-center w-full">
@@ -396,14 +406,14 @@ const HRPerformanceDashboard = () => {
                     }}
                   />
                   <div className="text-center w-full">
-                    <h3 className="text-white font-semibold text-xs sm:text-sm truncate">{staff.name}</h3>
-                    <p className="text-gray-400 text-[10px] sm:text-xs truncate">ID: {staff.staffIdNo}</p>
-                    <p className="text-gray-400 text-[10px] sm:text-xs truncate">{staff.department}</p>
-                    <p className="text-gray-400 text-[10px] sm:text-xs truncate">Staff from Branch {staff.branch}</p>
-                    <p className="text-green-400 text-[10px] sm:text-xs truncate">Managed by: {staff.managerName}</p>
+                    <h3 className="text-black font-semibold text-xs sm:text-sm truncate">{staff.name}</h3>
+                    <p className="text-black/80 text-[10px] sm:text-xs truncate">ID: {staff.staffIdNo}</p>
+                    <p className="text-black/80 text-[10px] sm:text-xs truncate">{staff.department}</p>
+                    <p className="text-black/80 text-[10px] sm:text-xs truncate">Staff from Branch {staff.branch}</p>
+                    <p className="text-black/80 text-[10px] sm:text-xs truncate">Managed by: {staff.managerName}</p>
                     <div className="flex items-center justify-center space-x-1 mt-1">
                       <div className={`w-2 h-2 rounded-full ${getScoreColor(staff.totalAverage)}`}></div>
-                      <span className="text-white font-semibold text-xs sm:text-sm">{staff.totalAverage}%</span>
+                      <span className="text-black font-semibold text-xs sm:text-sm">{staff.totalAverage}%</span>
                     </div>
                   </div>
                 </div>

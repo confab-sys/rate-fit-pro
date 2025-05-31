@@ -281,14 +281,14 @@ const HRInsightTrends = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen w-full bg-[#0D1B2A] flex items-center justify-center">
+      <div className="min-h-screen w-full bg-[#8B2E3C] flex items-center justify-center">
         <div className="text-white text-xl">Loading...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen w-full bg-[#0D1B2A]">
+    <div className="min-h-screen w-full bg-[#8B2E3C]">
       <div className="p-3 sm:p-6">
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-white text-xl sm:text-2xl font-bold text-center flex-1">HR Insight Trends</h1>
@@ -298,7 +298,7 @@ const HRInsightTrends = () => {
             {/* Return to HR Menu Button */}
             <button
               onClick={() => navigate('/new-hr-menu')}
-              className="px-4 py-3 rounded-lg bg-[#1B263B] text-white hover:bg-[#22304a] transition-colors flex items-center justify-center space-x-2"
+              className="px-4 py-3 rounded-lg bg-[#f2c078] text-[#8B2E3C] hover:bg-[#e5b56a] transition-colors flex items-center justify-center space-x-2 border-2 border-black"
             >
               <svg 
                 xmlns="http://www.w3.org/2000/svg" 
@@ -327,10 +327,10 @@ const HRInsightTrends = () => {
               placeholder="Search by name, ID, or department..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full px-4 py-2 rounded-lg bg-[#1B263B] text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 rounded-lg bg-[#f2c078] text-[#8B2E3C] placeholder-[#8B2E3C]/60 focus:outline-none focus:ring-2 focus:ring-[#f2c078] border-2 border-black"
             />
             <svg
-              className="absolute right-3 top-2.5 h-5 w-5 text-gray-400"
+              className="absolute right-3 top-2.5 h-5 w-5 text-[#8B2E3C]"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -351,12 +351,9 @@ const HRInsightTrends = () => {
             <button
               key={key}
               onClick={() => setActiveCategoryFilter(activeCategoryFilter === key ? null : key)}
-              className={`px-4 py-2 rounded-lg ${
-                activeCategoryFilter === key ? config.color : 'bg-[#1B263B]'
-              } text-white hover:opacity-90 transition-colors`}
-              style={{
-                border: activeCategoryFilter === key ? `2px solid ${config.borderColor}` : 'none'
-              }}
+              className={`px-4 py-2 rounded-lg border-2 border-black ${
+                activeCategoryFilter === key ? 'bg-[#f2c078] text-[#8B2E3C]' : 'bg-[#f2c078]/20 text-white hover:bg-[#f2c078]/30'
+              } transition-colors`}
             >
               {config.label} {activeCategoryFilter === key && '↓'}
             </button>
@@ -371,34 +368,31 @@ const HRInsightTrends = () => {
               filteredBranches.map((branch) => (
                 <div
                   key={branch.id}
-                  className="bg-[#1B263B] rounded-lg p-4 hover:bg-[#22304a] transition-colors"
+                  className="bg-[#f2c078] rounded-lg p-4 hover:bg-[#e5b56a] transition-colors border-2 border-black"
                 >
                   <div className="flex flex-col">
                     <div>
-                      <h3 className="text-white font-semibold text-lg mb-2">{branch.name}</h3>
-                      <p className="text-gray-400 text-sm">Managed by: {branch.manager}</p>
-                      <p className="text-gray-400 text-sm mt-1">Total Staff: {branch.staffCount}</p>
+                      <h3 className="text-black font-semibold text-lg mb-2">{branch.name}</h3>
+                      <p className="text-black/80 text-sm">Managed by: {branch.manager}</p>
+                      <p className="text-black/80 text-sm mt-1">Total Staff: {branch.staffCount}</p>
                       <div className="flex items-center space-x-2 mt-2">
                         <div className={`w-2 h-2 rounded-full ${getScoreColor(branch.performance)}`}></div>
-                        <p className="text-white text-sm">Performance: {branch.performance}%</p>
+                        <p className="text-black text-sm">Performance: {branch.performance}%</p>
                       </div>
                     </div>
 
                     {/* Category Averages */}
-                    <div className="mt-4 pt-4 border-t border-gray-700">
-                      <h4 className="text-white font-semibold text-sm mb-2">Category Averages</h4>
+                    <div className="mt-4 pt-4 border-t border-black/20">
+                      <h4 className="text-black font-semibold text-sm mb-2">Category Averages</h4>
                       <div className="grid grid-cols-2 gap-2">
                         {Object.entries(categoryConfig).map(([key, config]) => (
                           <div 
                             key={key} 
                             className={`flex items-center justify-between p-1 rounded-lg ${
-                              activeCategoryFilter === key ? 'bg-opacity-20' : ''
+                              activeCategoryFilter === key ? 'bg-[#8B2E3C]/10' : ''
                             }`}
-                            style={{
-                              backgroundColor: activeCategoryFilter === key ? config.color : 'transparent'
-                            }}
                           >
-                            <span className="text-gray-400 text-xs">{config.label}</span>
+                            <span className="text-black/80 text-xs">{config.label}</span>
                             <div className={`px-2 py-1 rounded-full ${getScoreColor(branch.metrics.categoryAverages[key])} text-white text-xs font-semibold`}>
                               {branch.metrics.categoryAverages[key]}%
                             </div>
@@ -419,7 +413,7 @@ const HRInsightTrends = () => {
 
         {/* Dividing Line */}
         <div className="max-w-7xl mx-auto mb-8">
-          <div className="h-px bg-gray-700"></div>
+          <div className="h-px bg-white/20"></div>
         </div>
 
         {/* Staff Category Filter Buttons */}
@@ -428,12 +422,9 @@ const HRInsightTrends = () => {
             <button
               key={key}
               onClick={() => setActiveStaffCategoryFilter(activeStaffCategoryFilter === key ? null : key)}
-              className={`px-4 py-2 rounded-lg ${
-                activeStaffCategoryFilter === key ? config.color : 'bg-[#1B263B]'
-              } text-white hover:opacity-90 transition-colors`}
-              style={{
-                border: activeStaffCategoryFilter === key ? `2px solid ${config.borderColor}` : 'none'
-              }}
+              className={`px-4 py-2 rounded-lg border-2 border-black ${
+                activeStaffCategoryFilter === key ? 'bg-[#f2c078] text-[#8B2E3C]' : 'bg-[#f2c078]/20 text-white hover:bg-[#f2c078]/30'
+              } transition-colors`}
             >
               {config.label} {activeStaffCategoryFilter === key && '↓'}
             </button>
@@ -447,17 +438,17 @@ const HRInsightTrends = () => {
             {Object.entries(getGroupedStaff()).map(([branch, staff]) => (
               <div key={branch} className="mb-8">
                 <h2 className="text-white text-xl font-semibold mb-4">
-                  Branch: {branch} <span className="text-gray-400 text-lg">({staff.length} staff members)</span>
+                  Branch: {branch} <span className="text-gray-200 text-lg">({staff.length} staff members)</span>
                 </h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {staff.map((staffMember) => (
                     <div
                       key={staffMember.id}
-                      className="bg-[#1B263B] rounded-lg p-4 hover:bg-[#22304a] transition-colors cursor-pointer"
+                      className="bg-[#f2c078] rounded-lg p-4 hover:bg-[#e5b56a] transition-colors cursor-pointer border-2 border-black"
                       onClick={() => navigate(`/staff-analysis/${staffMember.id}`)}
                     >
                       <div className="flex items-center space-x-4">
-                        <div className="w-16 h-16 rounded-full overflow-hidden">
+                        <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-black">
                           <img
                             src={staffMember.photo || 'https://via.placeholder.com/150'}
                             alt={staffMember.name}
@@ -465,9 +456,9 @@ const HRInsightTrends = () => {
                           />
                         </div>
                         <div className="flex-1">
-                          <h3 className="text-white font-semibold">{staffMember.name}</h3>
-                          <p className="text-gray-400 text-sm">ID: {staffMember.staffIdNo}</p>
-                          <p className="text-gray-400 text-sm">{staffMember.department}</p>
+                          <h3 className="text-black font-semibold">{staffMember.name}</h3>
+                          <p className="text-black/80 text-sm">ID: {staffMember.staffIdNo}</p>
+                          <p className="text-black/80 text-sm">{staffMember.department}</p>
                         </div>
                         <div className="text-right">
                           <div className={`inline-block px-3 py-1 rounded-full ${getScoreColor(staffMember.totalAverage)} text-white text-sm font-semibold`}>
@@ -482,13 +473,10 @@ const HRInsightTrends = () => {
                           <div 
                             key={key} 
                             className={`flex items-center justify-between p-1 rounded-lg ${
-                              activeStaffCategoryFilter === key ? 'bg-opacity-20' : ''
+                              activeStaffCategoryFilter === key ? 'bg-[#8B2E3C]/10' : ''
                             }`}
-                            style={{
-                              backgroundColor: activeStaffCategoryFilter === key ? config.color : 'transparent'
-                            }}
                           >
-                            <span className="text-gray-400 text-sm">{config.label}</span>
+                            <span className="text-black/80 text-sm">{config.label}</span>
                             <div className={`px-2 py-1 rounded-full ${getScoreColor(staffMember.categoryAverages[key])} text-white text-xs font-semibold`}>
                               {staffMember.categoryAverages[key]}%
                             </div>
@@ -502,16 +490,16 @@ const HRInsightTrends = () => {
             ))}
           </div>
         ) : (
-          // Regular staff grid view when no category filter is active
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          // Regular staff grid view for no filter
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-7xl mx-auto">
             {filteredStaff.map((staff) => (
               <div
                 key={staff.id}
-                className="bg-[#1B263B] rounded-lg p-4 hover:bg-[#22304a] transition-colors cursor-pointer"
+                className="bg-[#f2c078] rounded-lg p-4 hover:bg-[#e5b56a] transition-colors cursor-pointer border-2 border-black"
                 onClick={() => navigate(`/staff-analysis/${staff.id}`)}
               >
                 <div className="flex items-center space-x-4">
-                  <div className="w-16 h-16 rounded-full overflow-hidden">
+                  <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-black">
                     <img
                       src={staff.photo || 'https://via.placeholder.com/150'}
                       alt={staff.name}
@@ -519,10 +507,10 @@ const HRInsightTrends = () => {
                     />
                   </div>
                   <div className="flex-1">
-                    <h3 className="text-white font-semibold">{staff.name}</h3>
-                    <p className="text-gray-400 text-sm">ID: {staff.staffIdNo}</p>
-                    <p className="text-gray-400 text-sm">{staff.department}</p>
-                    <p className="text-gray-400 text-sm">Branch: {staff.branch}</p>
+                    <h3 className="text-black font-semibold">{staff.name}</h3>
+                    <p className="text-black/80 text-sm">ID: {staff.staffIdNo}</p>
+                    <p className="text-black/80 text-sm">{staff.department}</p>
+                    <p className="text-black/80 text-sm">Branch: {staff.branch}</p>
                   </div>
                   <div className="text-right">
                     <div className={`inline-block px-3 py-1 rounded-full ${getScoreColor(staff.totalAverage)} text-white text-sm font-semibold`}>
@@ -536,14 +524,9 @@ const HRInsightTrends = () => {
                   {Object.entries(categoryConfig).map(([key, config]) => (
                     <div 
                       key={key} 
-                      className={`flex items-center justify-between p-1 rounded-lg ${
-                        activeStaffCategoryFilter === key ? 'bg-opacity-20' : ''
-                      }`}
-                      style={{
-                        backgroundColor: activeStaffCategoryFilter === key ? config.color : 'transparent'
-                      }}
+                      className="flex items-center justify-between p-1 rounded-lg"
                     >
-                      <span className="text-gray-400 text-sm">{config.label}</span>
+                      <span className="text-black/80 text-sm">{config.label}</span>
                       <div className={`px-2 py-1 rounded-full ${getScoreColor(staff.categoryAverages[key])} text-white text-xs font-semibold`}>
                         {staff.categoryAverages[key]}%
                       </div>
@@ -556,7 +539,7 @@ const HRInsightTrends = () => {
         )}
 
         {filteredStaff.length === 0 && (
-          <div className="text-center text-gray-400 mt-8">
+          <div className="text-white text-center mt-10">
             No staff members found matching your search criteria.
           </div>
         )}
