@@ -1,0 +1,89 @@
+.operations-manager-login-container {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #0D1B2A;
+  padding: 2rem;
+  position: relative;
+}
+
+.login-form-container {
+  background-color: rgba(46, 204, 113, 0.2);
+  padding: 2rem;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 400px;
+}
+
+.login-form-container h2 {
+  color: white;
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: black;
+  font-weight: 500;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+  color: black;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #2ECC71;
+  box-shadow: 0 0 0 2px rgba(46, 204, 113, 0.2);
+}
+
+.button-group {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.login-button,
+.create-account-button {
+  width: 100%;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.login-button {
+  background-color: #2ECC71;
+  color: white;
+}
+
+.login-button:hover {
+  background-color: #27AE60;
+}
+
+.create-account-button {
+  background-color: transparent;
+  border: 2px solid #2ECC71;
+  color: #2ECC71;
+}
+
+.create-account-button:hover {
+  background-color: rgba(46, 204, 113, 0.1);
+} 

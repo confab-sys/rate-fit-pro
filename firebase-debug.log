@@ -1,0 +1,110 @@
+[debug] [2025-05-21T11:32:45.052Z] ----------------------------------------------------------------------
+[debug] [2025-05-21T11:32:45.061Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\jogesware\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js deploy --only firestore:indexes
+[debug] [2025-05-21T11:32:45.062Z] CLI Version:   14.4.0
+[debug] [2025-05-21T11:32:45.062Z] Platform:      win32
+[debug] [2025-05-21T11:32:45.062Z] Node Version:  v22.15.1
+[debug] [2025-05-21T11:32:45.063Z] Time:          Wed May 21 2025 14:32:45 GMT+0300 (East Africa Time)
+[debug] [2025-05-21T11:32:45.063Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-05-21T11:32:45.617Z] Field "/firestore/indexes" in "firebase.json" is possibly invalid: must be string
+[debug] [2025-05-21T11:32:45.619Z] Field "/firestore" in "firebase.json" is possibly invalid: must be array
+[debug] [2025-05-21T11:32:45.619Z] Field "/firestore" in "firebase.json" is possibly invalid: must match a schema in anyOf
+[debug] [2025-05-21T11:32:45.627Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-05-21T11:32:45.628Z] > authorizing via signed-in user (ashwaashard@gmail.com)
+[debug] [2025-05-21T11:32:45.628Z] [iam] checking project rate-fit-pro for permissions ["datastore.indexes.create","datastore.indexes.delete","datastore.indexes.list","datastore.indexes.update","firebase.projects.get"]
+[debug] [2025-05-21T11:32:45.630Z] Checked if tokens are valid: true, expires at: 1747830728104
+[debug] [2025-05-21T11:32:45.630Z] Checked if tokens are valid: true, expires at: 1747830728104
+[debug] [2025-05-21T11:32:45.632Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/rate-fit-pro:testIamPermissions [none]
+[debug] [2025-05-21T11:32:45.633Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/rate-fit-pro:testIamPermissions x-goog-quota-user=projects/rate-fit-pro
+[debug] [2025-05-21T11:32:45.633Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/rate-fit-pro:testIamPermissions {"permissions":["datastore.indexes.create","datastore.indexes.delete","datastore.indexes.list","datastore.indexes.update","firebase.projects.get"]}
+[debug] [2025-05-21T11:32:47.700Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/rate-fit-pro:testIamPermissions 200
+[debug] [2025-05-21T11:32:47.700Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/rate-fit-pro:testIamPermissions {"permissions":["datastore.indexes.create","datastore.indexes.delete","datastore.indexes.list","datastore.indexes.update","firebase.projects.get"]}
+[info] 
+[info] === Deploying to 'rate-fit-pro'...
+[info] 
+[info] i  deploying firestore 
+[debug] [2025-05-21T11:32:48.541Z] TypeError [ERR_INVALID_ARG_TYPE]: The "path" argument must be of type string. Received an instance of Array
+    at Object.isAbsolute (node:path:452:5)
+    at Config.path (C:\Users\jogesware\AppData\Roaming\npm\node_modules\firebase-tools\lib\config.js:130:18)
+    at prepareIndexes (C:\Users\jogesware\AppData\Roaming\npm\node_modules\firebase-tools\lib\deploy\firestore\prepare.js:17:40)
+    at default_1 (C:\Users\jogesware\AppData\Roaming\npm\node_modules\firebase-tools\lib\deploy\firestore\prepare.js:53:13)
+    at chain (C:\Users\jogesware\AppData\Roaming\npm\node_modules\firebase-tools\lib\deploy\index.js:42:15)
+    at deploy (C:\Users\jogesware\AppData\Roaming\npm\node_modules\firebase-tools\lib\deploy\index.js:119:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2025-05-21T12:18:14.278Z] ----------------------------------------------------------------------
+[debug] [2025-05-21T12:18:14.286Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\jogesware\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js deploy --only firestore:indexes
+[debug] [2025-05-21T12:18:14.287Z] CLI Version:   14.4.0
+[debug] [2025-05-21T12:18:14.287Z] Platform:      win32
+[debug] [2025-05-21T12:18:14.288Z] Node Version:  v22.15.1
+[debug] [2025-05-21T12:18:14.291Z] Time:          Wed May 21 2025 15:18:14 GMT+0300 (East Africa Time)
+[debug] [2025-05-21T12:18:14.291Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-05-21T12:18:14.931Z] Field "/firestore/indexes" in "firebase.json" is possibly invalid: must be string
+[debug] [2025-05-21T12:18:14.931Z] Field "/firestore" in "firebase.json" is possibly invalid: must be array
+[debug] [2025-05-21T12:18:14.931Z] Field "/firestore" in "firebase.json" is possibly invalid: must match a schema in anyOf
+[debug] [2025-05-21T12:18:14.943Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-05-21T12:18:14.944Z] > authorizing via signed-in user (ashwaashard@gmail.com)
+[debug] [2025-05-21T12:18:14.944Z] [iam] checking project rate-fit-pro for permissions ["datastore.indexes.create","datastore.indexes.delete","datastore.indexes.list","datastore.indexes.update","firebase.projects.get"]
+[debug] [2025-05-21T12:18:14.946Z] Checked if tokens are valid: false, expires at: 1747830728104
+[debug] [2025-05-21T12:18:14.947Z] Checked if tokens are valid: false, expires at: 1747830728104
+[debug] [2025-05-21T12:18:14.947Z] > refreshing access token with scopes: []
+[debug] [2025-05-21T12:18:14.950Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-05-21T12:18:14.951Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-05-21T12:18:15.940Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-05-21T12:18:15.940Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-05-21T12:18:16.082Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/rate-fit-pro:testIamPermissions [none]
+[debug] [2025-05-21T12:18:16.082Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/rate-fit-pro:testIamPermissions x-goog-quota-user=projects/rate-fit-pro
+[debug] [2025-05-21T12:18:16.082Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/rate-fit-pro:testIamPermissions {"permissions":["datastore.indexes.create","datastore.indexes.delete","datastore.indexes.list","datastore.indexes.update","firebase.projects.get"]}
+[debug] [2025-05-21T12:18:18.144Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/rate-fit-pro:testIamPermissions 200
+[debug] [2025-05-21T12:18:18.144Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/rate-fit-pro:testIamPermissions {"permissions":["datastore.indexes.create","datastore.indexes.delete","datastore.indexes.list","datastore.indexes.update","firebase.projects.get"]}
+[info] 
+[info] === Deploying to 'rate-fit-pro'...
+[info] 
+[info] i  deploying firestore 
+[debug] [2025-05-21T12:18:18.986Z] TypeError [ERR_INVALID_ARG_TYPE]: The "path" argument must be of type string. Received an instance of Array
+    at Object.isAbsolute (node:path:452:5)
+    at Config.path (C:\Users\jogesware\AppData\Roaming\npm\node_modules\firebase-tools\lib\config.js:130:18)
+    at prepareIndexes (C:\Users\jogesware\AppData\Roaming\npm\node_modules\firebase-tools\lib\deploy\firestore\prepare.js:17:40)
+    at default_1 (C:\Users\jogesware\AppData\Roaming\npm\node_modules\firebase-tools\lib\deploy\firestore\prepare.js:53:13)
+    at chain (C:\Users\jogesware\AppData\Roaming\npm\node_modules\firebase-tools\lib\deploy\index.js:42:15)
+    at deploy (C:\Users\jogesware\AppData\Roaming\npm\node_modules\firebase-tools\lib\deploy\index.js:119:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2025-05-21T12:31:53.709Z] ----------------------------------------------------------------------
+[debug] [2025-05-21T12:31:53.715Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\jogesware\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js deploy --only firestore:indexes
+[debug] [2025-05-21T12:31:53.716Z] CLI Version:   14.4.0
+[debug] [2025-05-21T12:31:53.716Z] Platform:      win32
+[debug] [2025-05-21T12:31:53.717Z] Node Version:  v22.15.1
+[debug] [2025-05-21T12:31:53.718Z] Time:          Wed May 21 2025 15:31:53 GMT+0300 (East Africa Time)
+[debug] [2025-05-21T12:31:53.719Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-05-21T12:31:54.310Z] Field "/firestore/indexes" in "firebase.json" is possibly invalid: must be string
+[debug] [2025-05-21T12:31:54.311Z] Field "/firestore" in "firebase.json" is possibly invalid: must be array
+[debug] [2025-05-21T12:31:54.311Z] Field "/firestore" in "firebase.json" is possibly invalid: must match a schema in anyOf
+[debug] [2025-05-21T12:31:54.320Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-05-21T12:31:54.320Z] > authorizing via signed-in user (ashwaashard@gmail.com)
+[debug] [2025-05-21T12:31:54.321Z] [iam] checking project rate-fit-pro for permissions ["datastore.indexes.create","datastore.indexes.delete","datastore.indexes.list","datastore.indexes.update","firebase.projects.get"]
+[debug] [2025-05-21T12:31:54.323Z] Checked if tokens are valid: true, expires at: 1747833494940
+[debug] [2025-05-21T12:31:54.323Z] Checked if tokens are valid: true, expires at: 1747833494940
+[debug] [2025-05-21T12:31:54.325Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/rate-fit-pro:testIamPermissions [none]
+[debug] [2025-05-21T12:31:54.325Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/rate-fit-pro:testIamPermissions x-goog-quota-user=projects/rate-fit-pro
+[debug] [2025-05-21T12:31:54.325Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/rate-fit-pro:testIamPermissions {"permissions":["datastore.indexes.create","datastore.indexes.delete","datastore.indexes.list","datastore.indexes.update","firebase.projects.get"]}
+[debug] [2025-05-21T12:31:56.546Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/rate-fit-pro:testIamPermissions 200
+[debug] [2025-05-21T12:31:56.547Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/rate-fit-pro:testIamPermissions {"permissions":["datastore.indexes.create","datastore.indexes.delete","datastore.indexes.list","datastore.indexes.update","firebase.projects.get"]}
+[info] 
+[info] === Deploying to 'rate-fit-pro'...
+[info] 
+[info] i  deploying firestore 
+[debug] [2025-05-21T12:31:57.392Z] TypeError [ERR_INVALID_ARG_TYPE]: The "path" argument must be of type string. Received an instance of Array
+    at Object.isAbsolute (node:path:452:5)
+    at Config.path (C:\Users\jogesware\AppData\Roaming\npm\node_modules\firebase-tools\lib\config.js:130:18)
+    at prepareIndexes (C:\Users\jogesware\AppData\Roaming\npm\node_modules\firebase-tools\lib\deploy\firestore\prepare.js:17:40)
+    at default_1 (C:\Users\jogesware\AppData\Roaming\npm\node_modules\firebase-tools\lib\deploy\firestore\prepare.js:53:13)
+    at chain (C:\Users\jogesware\AppData\Roaming\npm\node_modules\firebase-tools\lib\deploy\index.js:42:15)
+    at deploy (C:\Users\jogesware\AppData\Roaming\npm\node_modules\firebase-tools\lib\deploy\index.js:119:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+[error] 
+[error] Error: An unexpected error has occurred.

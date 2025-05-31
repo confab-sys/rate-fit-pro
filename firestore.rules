@@ -1,0 +1,151 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isAdmin() {
+      return isAuthenticated() && 
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+    
+    function isOperationsManager() {
+      return isAuthenticated() && 
+        exists(/databases/$(database)/documents/operationsManagers/$(request.auth.uid));
+    }
+    
+    function isManager() {
+      return isAuthenticated() && 
+        exists(/databases/$(database)/documents/managers/$(request.auth.uid));
+    }
+
+    function isHR() {
+      return isAuthenticated() && 
+        exists(/databases/$(database)/documents/hr_users/$(request.auth.token.email));
+    }
+
+    function isSupervisor() {
+      return isAuthenticated() && 
+        exists(/databases/$(database)/documents/supervisors/$(request.auth.token.email));
+    }
+
+    function isValidEmail(email) {
+      return email.matches('^[^@]+@[^@]+\\.[^@]+$');
+    }
+
+    function isValidPin(pin) {
+      return pin is string && pin.size() == 6 && pin.matches('^[0-9]+$');
+    }
+
+    function isValidName(name) {
+      return name is string && name.size() >= 2 && name.size() <= 50;
+    }
+
+    function isValidTimestamp(timestamp) {
+      return timestamp is timestamp && 
+        timestamp <= request.time && 
+        timestamp >= request.time - duration.value(365, 'd');
+    }
+
+    function isValidIP(ip) {
+      return ip is string && ip.matches('^[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}$');
+    }
+
+    function hasValidFields(data) {
+      return data.keys().hasAll(['name', 'email', 'createdAt', 'biometricRegistered', 'uid', 'pin', 'role', 'lastLogin', 'failedAttempts']) &&
+        isValidName(data.name) &&
+        isValidEmail(data.email) &&
+        data.createdAt is string &&
+        data.biometricRegistered is bool &&
+        data.uid is string &&
+        data.pin is string &&
+        data.role in ['hr', 'supervisor'] &&
+        (data.lastLogin == null || data.lastLogin is string) &&
+        data.failedAttempts is number;
+    }
+
+    // HR Users collection
+    match /hr_users/{email} {
+      allow read: if isHR() && request.auth.token.email == email;
+      allow create: if isHR() && 
+        isValidEmail(email) && 
+        hasValidFields(request.resource.data) &&
+        request.resource.data.role == 'hr';
+      allow update: if isHR() && 
+        request.auth.token.email == email && 
+        hasValidFields(request.resource.data) &&
+        request.resource.data.role == 'hr';
+      allow delete: if false; // Prevent account deletion
+    }
+
+    // Supervisors collection
+    match /supervisors/{email} {
+      allow read: if isSupervisor() && request.auth.token.email == email;
+      allow create: if isHR() && 
+        isValidEmail(email) && 
+        hasValidFields(request.resource.data) &&
+        request.resource.data.role == 'supervisor';
+      allow update: if (isHR() || (isSupervisor() && request.auth.token.email == email)) && 
+        hasValidFields(request.resource.data) &&
+        request.resource.data.role == 'supervisor';
+      allow delete: if false; // Prevent account deletion
+    }
+
+    // Security logs collection
+    match /security_logs/{logId} {
+      allow read: if isHR();
+      allow create: if isAuthenticated() && 
+        request.resource.data.keys().hasAll(['event', 'timestamp', 'details']) &&
+        request.resource.data.event is string &&
+        isValidTimestamp(request.resource.data.timestamp) &&
+        request.resource.data.details is map;
+      allow update, delete: if false;
+    }
+
+    // Rate limiting collection
+    match /rate_limits/{ip} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && 
+        isValidIP(ip) && 
+        request.resource.data.keys().hasAll(['count', 'lastAttempt']) &&
+        request.resource.data.count is number &&
+        isValidTimestamp(request.resource.data.lastAttempt);
+    }
+
+    // Admins collection
+    match /admins/{adminId} {
+      allow read: if isAdmin() || isOperationsManager();
+      allow write: if isAdmin();
+    }
+
+    // Operations Managers collection
+    match /operationsManagers/{managerId} {
+      allow read: if isAdmin() || (isOperationsManager() && request.auth.uid == managerId);
+      allow create: if isAdmin();
+      allow update: if isAdmin() || (isOperationsManager() && request.auth.uid == managerId);
+      allow delete: if isAdmin();
+    }
+
+    // Managers collection
+    match /managers/{managerId} {
+      allow read: if isAdmin() || isOperationsManager() || (isManager() && request.auth.uid == managerId);
+      allow create: if isAdmin() || isOperationsManager();
+      allow update: if isAdmin() || isOperationsManager() || (isManager() && request.auth.uid == managerId);
+      allow delete: if isAdmin() || isOperationsManager();
+    }
+
+    // Staff collection
+    match /staff/{document=**} {
+      allow read: if isAuthenticated() && (isAdmin() || isOperationsManager() || isManager());
+      allow write: if isAdmin() || isOperationsManager();
+    }
+
+    // Staff ratings collection
+    match /staff_ratings/{document=**} {
+      allow read: if isAuthenticated() && (isAdmin() || isOperationsManager() || isManager());
+      allow write: if isAdmin() || isOperationsManager() || isManager();
+    }
+  }
+} 
