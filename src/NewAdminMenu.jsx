@@ -13,6 +13,7 @@ const NewAdminMenu = () => {
   const categoryManagerUrl = new URL('./assets/category manager.svg', import.meta.url).href;
   const branchAnalysisUrl = new URL('./assets/branch analysis.svg', import.meta.url).href;
   const branchPerformanceUrl = new URL('./assets/branch perfomance.svg', import.meta.url).href;
+  const branchCategoryAnalysisUrl = new URL('./assets/Branch category analysis.svg', import.meta.url).href;
 
   useEffect(() => {
     const name = sessionStorage.getItem('adminName');
@@ -72,6 +73,13 @@ const NewAdminMenu = () => {
             alt="Branch Performance"
             className="w-24 h-24 sm:w-32 sm:h-32 cursor-pointer hover:scale-110 transition-transform duration-300"
             onClick={() => navigate('/admin-branch-performance', { state: { fromNewAdminMenu: true } })}
+          />
+
+          <img 
+            src={branchCategoryAnalysisUrl}
+            alt="Branch Category Analysis"
+            className="w-24 h-24 sm:w-32 sm:h-32 cursor-pointer hover:scale-110 transition-transform duration-300"
+            onClick={() => navigate('/branch-category-analysis')}
           />
 
           <img 

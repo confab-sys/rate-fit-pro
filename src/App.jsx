@@ -71,6 +71,13 @@ import ManagerPerformanceDashboard from "./ManagerPerformanceDashboard";
 import ManagerInsightTrends from "./ManagerInsightTrends";
 import ManagerViewStaffReport from "./ManagerViewStaffReport";
 import ManagerViewWeeklyAnalysis from "./ManagerViewWeeklyAnalysis";
+import HrCategoryBranchReports from "./HrCategoryBranchReports";
+import StaffPerformanceNotifications from "./StaffPerformanceNotifications";
+import OperationsPerformanceDashboard from './OperationsPerformanceDashboard';
+import OperationsCategoryBranchReports from './OperationsCategoryBranchReports';
+import OperationsManagerDirectory from './OperationsManagerDirectory';
+import OperationsBranchAnalysis from './OperationsBranchAnalysis';
+import OperationsBranchPerformance from './OperationsBranchPerformance';
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -162,6 +169,14 @@ const App = () => {
         <Route path="/manager-insight-trends" element={<ManagerInsightTrends />} />
         <Route path="/manager-view-staff-report/:staffId" element={<ManagerViewStaffReport />} />
         <Route path="/manager-view-weekly-analysis/:staffId" element={<ManagerViewWeeklyAnalysis />} />
+        <Route path="/hr-category-branch-reports" element={<HrCategoryBranchReports />} />
+        <Route path="/staff-performance-notifications" element={<StaffPerformanceNotifications />} />
+        <Route path="/operations-performance-dashboard" element={<OperationsPerformanceDashboard />} />
+        <Route path="/operations-category-branch-reports" element={<OperationsCategoryBranchReports />} />
+        <Route path="/branch-category-analysis" element={<OperationsCategoryBranchReports />} />
+        <Route path="/operations-manager-directory" element={<OperationsManagerDirectory />} />
+        <Route path="/operations-branch-analysis" element={<OperationsBranchAnalysis />} />
+        <Route path="/operations-branch-performance" element={<OperationsBranchPerformance />} />
       </Routes>
     </Router>
   );

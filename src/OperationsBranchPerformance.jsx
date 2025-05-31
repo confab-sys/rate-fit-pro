@@ -1,39 +1,28 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 import { db } from './firebase';
 
-const HrBranchPerformance = () => {
+const OperationsBranchPerformance = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const [staffMembers, setStaffMembers] = useState([]);
   const [managers, setManagers] = useState([]);
   const [branches, setBranches] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
-  const [activeFilter, setActiveFilter] = useState('all');
-  const [expandedBranches, setExpandedBranches] = useState({});
-
-  // Check if user came from hr menu
-  const fromHrMenu = location.state?.fromNewHrMenu;
-
-  const toggleBranch = (branchId) => {
-    setExpandedBranches(prev => ({
-      ...prev,
-      [branchId]: !prev[branchId]
-    }));
-  };
+  const [activeFilter, setActiveFilter] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Get all managers first
+        setLoading(true);
+        
+        // Get all managers and their branches
         const managersSnapshot = await getDocs(collection(db, 'managers'));
         const managersList = managersSnapshot.docs.map(doc => ({
           id: doc.id,
           ...doc.data()
         }));
-        setManagers(managersList);
 
         // Get all staff members
         const staffSnapshot = await getDocs(collection(db, 'staff'));
@@ -42,7 +31,7 @@ const HrBranchPerformance = () => {
         for (const staffDoc of staffSnapshot.docs) {
           const staffInfo = staffDoc.data();
           
-          // Get all weekly ratings for this staff member
+          // Get all monthly ratings for this staff member
           const ratingsQuery = query(
             collection(db, 'staff', staffDoc.id, 'monthlyRatings'),
             orderBy('timestamp', 'desc')
@@ -52,30 +41,23 @@ const HrBranchPerformance = () => {
           let totalAverage = 0;
           
           if (!ratingsSnapshot.empty) {
-            // Calculate total average from all ratings
             const ratings = ratingsSnapshot.docs.map(doc => doc.data());
             const totalPercentage = ratings.reduce((sum, rating) => sum + (rating.averagePercentage || 0), 0);
             totalAverage = Math.round(totalPercentage / ratings.length);
           }
 
-          // Find the manager for this staff member's branch
-          const manager = managersList.find(m => m.branch === staffInfo.branchName);
-
           staffList.push({
             id: staffDoc.id,
             name: staffInfo.name,
-            staffIdNo: staffInfo.staffIdNo,
             department: staffInfo.department,
-            photo: staffInfo.photo,
             totalAverage,
-            branch: staffInfo.branchName || 'Not Assigned',
-            managerName: manager ? manager.name : 'No Manager Assigned'
+            branch: staffInfo.branchName || 'Not Assigned'
           });
         }
 
         setStaffMembers(staffList);
 
-        // Create branches list from managers data with staff count and performance
+        // Create branches list with performance data
         const branchesList = managersList.map(manager => {
           const branchStaff = staffList.filter(staff => staff.branch === manager.branch);
           const staffCount = branchStaff.length;
@@ -112,8 +94,8 @@ const HrBranchPerformance = () => {
             }
           };
         });
-        setBranches(branchesList);
 
+        setBranches(branchesList);
         setLoading(false);
       } catch (err) {
         console.error('Error fetching data:', err);
@@ -129,38 +111,6 @@ const HrBranchPerformance = () => {
     if (score >= 50) return 'bg-yellow-500';
     return 'bg-red-500';
   };
-
-  const filteredStaff = staffMembers.filter(staff => {
-    const searchTerm = search.toLowerCase().trim();
-    const matchesSearch = 
-      staff.name?.toLowerCase().includes(searchTerm) ||
-      staff.staffIdNo?.toLowerCase().includes(searchTerm) ||
-      staff.department?.toLowerCase().includes(searchTerm) ||
-      staff.branch?.toLowerCase().includes(searchTerm);
-
-    if (!matchesSearch) return false;
-
-    // Get the branch performance for this staff's branch
-    const staffBranch = branches.find(b => b.name === staff.branch);
-    if (!staffBranch) return true;
-
-    switch (activeFilter) {
-      case 'priority':
-        return staffBranch.performance < 50;
-      case 'average':
-        return staffBranch.performance >= 50 && staffBranch.performance < 80;
-      case 'top':
-        return staffBranch.performance >= 80;
-      default:
-        return true;
-    }
-  }).sort((a, b) => {
-    // Sort staff by performance when a filter is active
-    if (activeFilter !== 'all') {
-      return a.totalAverage - b.totalAverage; // Ascending order (least to top performing)
-    }
-    return 0; // No sorting when no filter is active
-  });
 
   const filteredBranches = branches.filter(branch => {
     const searchTerm = search.toLowerCase().trim();
@@ -194,14 +144,14 @@ const HrBranchPerformance = () => {
     <div className="min-h-screen w-full bg-[#0D1B2A]">
       <div className="p-6">
         <div className="mb-8">
-          <h1 className="text-white text-xl sm:text-2xl font-bold text-center">HR Branch Performance</h1>
+          <h1 className="text-white text-xl sm:text-2xl font-bold text-center">Operations Branch Performance</h1>
         </div>
 
         {/* Navigation Buttons */}
         <div className="max-w-2xl mx-auto mb-4 space-y-2">
-          {/* Return to HR Menu Button */}
+          {/* Return to Operations Menu Button */}
           <button
-            onClick={() => navigate('/new-hr-menu')}
+            onClick={() => navigate('/operations-main-menu')}
             className="w-full px-4 py-3 rounded-lg bg-[#1B263B] text-white hover:bg-[#22304a] transition-colors flex items-center justify-center space-x-2"
           >
             <svg 
@@ -218,7 +168,7 @@ const HrBranchPerformance = () => {
                 d="M10 19l-7-7m0 0l7-7m-7 7h18" 
               />
             </svg>
-            <span>Return to HR Menu</span>
+            <span>Return to Operations Menu</span>
           </button>
         </div>
 
@@ -227,7 +177,7 @@ const HrBranchPerformance = () => {
           <div className="relative">
             <input
               type="text"
-              placeholder="Search by name, ID, department, or branch..."
+              placeholder="Search by branch name or manager..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-full px-4 py-3 rounded-lg bg-[#1B263B] text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -250,36 +200,38 @@ const HrBranchPerformance = () => {
         </div>
 
         {/* Filter Buttons */}
-        <div className="max-w-2xl mx-auto mb-8 flex justify-center space-x-4">
+        <div className="max-w-2xl mx-auto mb-8 flex flex-wrap gap-2">
           <button
-            onClick={() => setActiveFilter(activeFilter === 'priority' ? 'all' : 'priority')}
-            className={`px-4 py-2 rounded-lg transition-colors ${
-              activeFilter === 'priority'
-                ? 'bg-red-500 text-white'
-                : 'bg-[#1B263B] text-white hover:bg-red-500/20'
-            }`}
+            onClick={() => setActiveFilter(null)}
+            className={`px-4 py-2 rounded-lg ${
+              activeFilter === null ? 'bg-blue-500' : 'bg-[#1B263B]'
+            } text-white hover:bg-[#22304a] transition-colors`}
           >
-            Least Performing Branch
+            All Branches
           </button>
           <button
-            onClick={() => setActiveFilter(activeFilter === 'average' ? 'all' : 'average')}
-            className={`px-4 py-2 rounded-lg transition-colors ${
-              activeFilter === 'average'
-                ? 'bg-yellow-500 text-white'
-                : 'bg-[#1B263B] text-white hover:bg-yellow-500/20'
-            }`}
+            onClick={() => setActiveFilter('priority')}
+            className={`px-4 py-2 rounded-lg ${
+              activeFilter === 'priority' ? 'bg-red-500' : 'bg-[#1B263B]'
+            } text-white hover:bg-[#22304a] transition-colors`}
           >
-            Average Performing Branch
+            Priority Branches
           </button>
           <button
-            onClick={() => setActiveFilter(activeFilter === 'top' ? 'all' : 'top')}
-            className={`px-4 py-2 rounded-lg transition-colors ${
-              activeFilter === 'top'
-                ? 'bg-green-500 text-white'
-                : 'bg-[#1B263B] text-white hover:bg-green-500/20'
-            }`}
+            onClick={() => setActiveFilter('average')}
+            className={`px-4 py-2 rounded-lg ${
+              activeFilter === 'average' ? 'bg-yellow-500' : 'bg-[#1B263B]'
+            } text-white hover:bg-[#22304a] transition-colors`}
           >
-            Top Performing Branch
+            Average Branches
+          </button>
+          <button
+            onClick={() => setActiveFilter('top')}
+            className={`px-4 py-2 rounded-lg ${
+              activeFilter === 'top' ? 'bg-green-500' : 'bg-[#1B263B]'
+            } text-white hover:bg-[#22304a] transition-colors`}
+          >
+            Top Performing Branches
           </button>
         </div>
 
@@ -307,18 +259,45 @@ const HrBranchPerformance = () => {
                     {/* Performance Analysis - Always visible */}
                     <div className="mt-4 pt-4 border-t border-gray-700">
                       <h4 className="text-white font-semibold text-sm mb-2">Performance Analysis</h4>
-                      <div className="space-y-2">
-                        <div className="flex justify-between items-center">
-                          <span className="text-gray-400 text-xs">High Performers</span>
-                          <span className="text-green-400 text-xs">{branch.metrics.highPerformers} staff</span>
+                      
+                      {/* Staff Performance Distribution */}
+                      <div className="mb-3">
+                        <div className="flex justify-between items-center mb-1">
+                          <span className="text-gray-400 text-xs">Staff Performance Distribution</span>
                         </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-gray-400 text-xs">Average Performers</span>
-                          <span className="text-yellow-400 text-xs">{branch.metrics.averagePerformers} staff</span>
+                        <div className="flex h-2 bg-gray-700 rounded-full overflow-hidden">
+                          <div 
+                            className="bg-green-500 h-full" 
+                            style={{ width: `${(branch.metrics.highPerformers / branch.staffCount) * 100}%` }}
+                          ></div>
+                          <div 
+                            className="bg-yellow-500 h-full" 
+                            style={{ width: `${(branch.metrics.averagePerformers / branch.staffCount) * 100}%` }}
+                          ></div>
+                          <div 
+                            className="bg-red-500 h-full" 
+                            style={{ width: `${(branch.metrics.lowPerformers / branch.staffCount) * 100}%` }}
+                          ></div>
                         </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-gray-400 text-xs">Low Performers</span>
-                          <span className="text-red-400 text-xs">{branch.metrics.lowPerformers} staff</span>
+                        <div className="flex justify-between text-xs mt-1">
+                          <span className="text-green-400">High: {branch.metrics.highPerformers}</span>
+                          <span className="text-yellow-400">Avg: {branch.metrics.averagePerformers}</span>
+                          <span className="text-red-400">Low: {branch.metrics.lowPerformers}</span>
+                        </div>
+                      </div>
+
+                      {/* Department Distribution */}
+                      <div>
+                        <div className="flex justify-between items-center mb-1">
+                          <span className="text-gray-400 text-xs">Department Distribution</span>
+                        </div>
+                        <div className="space-y-2">
+                          {Object.entries(branch.metrics.departments).map(([dept, count]) => (
+                            <div key={dept} className="flex justify-between items-center">
+                              <span className="text-gray-400 text-xs">{dept}</span>
+                              <span className="text-white text-xs">{count} staff</span>
+                            </div>
+                          ))}
                         </div>
                       </div>
                     </div>
@@ -326,21 +305,15 @@ const HrBranchPerformance = () => {
                 </div>
               ))
             ) : (
-              <div className="col-span-full text-white text-center">
-                No branches found
+              <div className="col-span-full text-center text-gray-400">
+                No branches found matching your search criteria.
               </div>
             )}
           </div>
         </div>
-
-        {filteredBranches.length === 0 && (
-          <div className="text-white text-center mt-10">
-            No results found matching your search criteria.
-          </div>
-        )}
       </div>
     </div>
   );
 };
 
-export default HrBranchPerformance; 
+export default OperationsBranchPerformance; 

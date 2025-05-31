@@ -7,8 +7,6 @@ const OperationsMainMenu = () => {
   // Import SVG assets
   const performanceDashboardUrl = new URL('./assets/perfomance-dashboard.svg', import.meta.url).href;
   const insightTrendsUrl = new URL('./assets/insight-trends.svg', import.meta.url).href;
-  const alertFromHrUrl = new URL('./assets/alert-from-hr.svg', import.meta.url).href;
-  const reportsUrl = new URL('./assets/reprts-supervisor.svg', import.meta.url).href;
   const logOutSquareUrl = new URL('./assets/log-out-square icon.svg', import.meta.url).href;
   const categoryManagerUrl = new URL('./assets/category manager.svg', import.meta.url).href;
   const branchAnalysisUrl = new URL('./assets/branch analysis.svg', import.meta.url).href;
@@ -36,49 +34,35 @@ const OperationsMainMenu = () => {
             src={performanceDashboardUrl}
             alt="Performance Dashboard"
             className="w-24 h-24 sm:w-32 sm:h-32 cursor-pointer hover:scale-110 transition-transform duration-300"
-            onClick={() => navigate('/admin-performance-dashboard', { state: { fromOperationsMenu: true } })}
+            onClick={() => navigate('/operations-performance-dashboard', { state: { fromOperationsMenu: true } })}
           />
           
           <img 
             src={insightTrendsUrl}
             alt="Insight Trends"
             className="w-24 h-24 sm:w-32 sm:h-32 cursor-pointer hover:scale-110 transition-transform duration-300"
-            onClick={() => navigate('/admin-insight-trends', { state: { fromOperationsMenu: true } })}
-          />
-
-          <img 
-            src={alertFromHrUrl}
-            alt="HR Alerts"
-            className="w-24 h-24 sm:w-32 sm:h-32 cursor-pointer hover:scale-110 transition-transform duration-300"
-            onClick={() => navigate('/hr-alerts')}
-          />
-
-          <img 
-            src={reportsUrl}
-            alt="Reports"
-            className="w-24 h-24 sm:w-32 sm:h-32 cursor-pointer hover:scale-110 transition-transform duration-300"
-            onClick={() => navigate('/reports', { state: { fromOperationsMenu: true } })}
+            onClick={() => navigate('/operations-category-branch-reports', { state: { fromOperationsMenu: true } })}
           />
 
           <img 
             src={categoryManagerUrl}
             alt="Category Manager"
             className="w-24 h-24 sm:w-32 sm:h-32 cursor-pointer hover:scale-110 transition-transform duration-300"
-            onClick={() => navigate('/managers-directory')}
+            onClick={() => navigate('/operations-manager-directory', { state: { fromOperationsMenu: true } })}
           />
 
           <img 
             src={branchAnalysisUrl}
             alt="Branch Analysis"
             className="w-24 h-24 sm:w-32 sm:h-32 cursor-pointer hover:scale-110 transition-transform duration-300"
-            onClick={() => navigate('/branch-analysis')}
+            onClick={() => navigate('/operations-branch-analysis')}
           />
 
           <img 
             src={branchPerformanceUrl}
             alt="Branch Performance"
             className="w-24 h-24 sm:w-32 sm:h-32 cursor-pointer hover:scale-110 transition-transform duration-300"
-            onClick={() => navigate('/admin-branch-performance', { state: { fromOperationsMenu: true } })}
+            onClick={() => navigate('/operations-branch-performance', { state: { fromOperationsMenu: true } })}
           />
 
           <img 

@@ -16,6 +16,7 @@ const NewHrMenu = () => {
   const categoryManagerUrl = new URL('./assets/category manager.svg', import.meta.url).href;
   const branchAnalysisUrl = new URL('./assets/branch analysis.svg', import.meta.url).href;
   const branchPerformanceUrl = new URL('./assets/branch perfomance.svg', import.meta.url).href;
+  const branchCategoryAnalysisUrl = new URL('./assets/Branch category analysis.svg', import.meta.url).href;
 
   useEffect(() => {
     const name = sessionStorage.getItem('adminName');
@@ -67,7 +68,7 @@ const NewHrMenu = () => {
             src={alertFromHrUrl}
             alt="HR Alerts"
             className="w-24 h-24 sm:w-32 sm:h-32 cursor-pointer hover:scale-110 transition-transform duration-300"
-            onClick={() => navigate('/hr-alerts')}
+            onClick={() => navigate('/staff-performance-notifications')}
           />
 
           <img 
@@ -96,6 +97,13 @@ const NewHrMenu = () => {
             alt="Branch Performance"
             className="w-24 h-24 sm:w-32 sm:h-32 cursor-pointer hover:scale-110 transition-transform duration-300"
             onClick={() => navigate('/hr-branch-performance')}
+          />
+
+          <img 
+            src={branchCategoryAnalysisUrl}
+            alt="Branch Category Analysis"
+            className="w-24 h-24 sm:w-32 sm:h-32 cursor-pointer hover:scale-110 transition-transform duration-300"
+            onClick={() => navigate('/hr-category-branch-reports')}
           />
 
           <img 
