@@ -68,7 +68,7 @@ const NewHrMenu = () => {
             src={alertFromHrUrl}
             alt="HR Alerts"
             className="w-24 h-24 sm:w-32 sm:h-32 cursor-pointer hover:scale-110 transition-transform duration-300"
-            onClick={() => navigate('/staff-performance-notifications')}
+            onClick={() => navigate('/staff-performance-notifications', { state: { fromNewHrMenu: true } })}
           />
 
           <img 
