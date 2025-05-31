@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { getFirestore, collection, query, where, getDocs } from 'firebase/firestore';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from './firebase';
 
 const NewAdminLogin = () => {
   const navigate = useNavigate();
@@ -33,23 +36,59 @@ const NewAdminLogin = () => {
     setError('');
     setLoading(true);
 
+    // Validate PIN length
     if (formData.pin.length !== 6) {
       setError('PIN must be 6 digits');
       setLoading(false);
       return;
     }
 
+    // Validate PIN format
+    if (!/^\d{6}$/.test(formData.pin)) {
+      setError('PIN must contain only numbers');
+      setLoading(false);
+      return;
+    }
+
     try {
-      // Add your login logic here
-      console.log('Login attempt:', formData);
+      const db = getFirestore();
+      const adminsRef = collection(db, 'admins');
       
-      // Store admin name in sessionStorage
-      sessionStorage.setItem('adminName', formData.name);
+      // Query Firestore for admin with matching credentials
+      const q = query(
+        adminsRef,
+        where('name', '==', formData.name),
+        where('email', '==', formData.email),
+        where('pin', '==', formData.pin)
+      );
       
-      // Navigate to new admin menu
-      navigate('/new-admin-menu');
+      const querySnapshot = await getDocs(q);
+
+      if (!querySnapshot.empty) {
+        const adminDoc = querySnapshot.docs[0];
+        const adminData = adminDoc.data();
+
+        // Attempt Firebase Authentication
+        try {
+          // Combine PIN and passKey for authentication
+          const combinedPassword = `${formData.pin}${adminData.passKey}`;
+          await signInWithEmailAndPassword(auth, formData.email, combinedPassword);
+          
+          // Store admin name in sessionStorage
+          sessionStorage.setItem('adminName', formData.name);
+          
+          // Navigate to admin menu
+          navigate('/new-admin-menu');
+        } catch (authError) {
+          console.error('Authentication error:', authError);
+          setError('Authentication failed. Please check your credentials.');
+        }
+      } else {
+        setError('Invalid admin credentials. Please check your name, email, and PIN.');
+      }
     } catch (err) {
-      setError(err.message);
+      console.error('Login error:', err);
+      setError('An error occurred during login. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -123,17 +162,17 @@ const NewAdminLogin = () => {
 
             <div>
               <label htmlFor="pin" className="block text-sm font-medium text-gray-200">
-                PIN (6 digits)
+                PIN
               </label>
               <div className="mt-1">
                 <input
                   id="pin"
                   name="pin"
                   type="password"
-                  maxLength="6"
                   required
                   value={formData.pin}
                   onChange={handleChange}
+                  placeholder="Enter 6-digit PIN"
                   className="appearance-none block w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm placeholder-gray-400 bg-white text-gray-900 focus:outline-none focus:ring-[#2ECC71] focus:border-[#2ECC71] sm:text-sm"
                 />
               </div>
@@ -143,7 +182,7 @@ const NewAdminLogin = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#2ECC71] hover:bg-[#27AE60] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#2ECC71] disabled:opacity-50"
+                className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#2ECC71] hover:bg-[#27AE60] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#2ECC71] ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
                 {loading ? 'Signing in...' : 'Sign in'}
               </button>
